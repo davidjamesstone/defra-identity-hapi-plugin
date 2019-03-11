@@ -9,7 +9,7 @@ const lab = exports.lab = Lab.script()
 const { describe, it } = lab
 const { expect } = Code
 
-const Server = require('../../server')
+const Server = require('../../../server')
 
 describe('Dynamics - update', async () => {
   let server
