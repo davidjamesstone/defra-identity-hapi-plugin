@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file. 
 
+## 4.0.1 - 11 Mar 2019
+- Set sameSite cookie policy to 'Lax' - https://www.owasp.org/index.php/SameSite
+
 ## 4.0.0 - 14 Feb 2019
 - `idm.dynamics.parseAuthzRoles` will not return `null` if there are no roles - it will always return an object
 - - Also will now deduplicate roles, orgs, enrolment statuses
