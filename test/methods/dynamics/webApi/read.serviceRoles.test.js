@@ -8,7 +8,7 @@ const lab = exports.lab = Lab.script()
 const { describe, it } = lab
 const { expect } = Code
 
-const readApi = require('../../../lib/methods/dynamics/webApi/read')
+const readApi = require('../../../../lib/methods/dynamics/webApi/read')
 
 const { readServiceRoles } = readApi({
   server: {},
