@@ -183,7 +183,7 @@ describe('Internals - routes', () => {
         path: undefined
       }
 
-      const output = await fullyQualifiedLocalPath(mock.path)
+      const output = fullyQualifiedLocalPath(mock.path)
 
       expect(output).to.be.a.string()
       expect(output).to.equal(mockAppDomain)
@@ -194,7 +194,7 @@ describe('Internals - routes', () => {
         path: 'just-a-path'
       }
 
-      const output = await fullyQualifiedLocalPath(mock.path)
+      const output = fullyQualifiedLocalPath(mock.path)
 
       expect(output).to.be.a.string()
       expect(output).to.equal(`${mockAppDomain}/${mock.path}`)
@@ -207,7 +207,7 @@ describe('Internals - routes', () => {
         pathWithDomain: `https://another.domain/${mockPath}`
       }
 
-      const output = await fullyQualifiedLocalPath(mock.pathWithDomain)
+      const output = fullyQualifiedLocalPath(mock.pathWithDomain)
 
       expect(output).to.be.a.string()
       expect(output).to.equal(`${mockAppDomain}/${mockPath}`)
