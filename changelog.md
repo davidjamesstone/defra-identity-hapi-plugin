@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file. 
 
+## 4.0.3 - 20 Mar 2019
+- Fix to the creation of a fully qualified domain when redirecting
+
 ## 4.0.2 - 11 Mar 2019
 - Ensure that redirects after logging out are always to the same domain as the consuming service
 
