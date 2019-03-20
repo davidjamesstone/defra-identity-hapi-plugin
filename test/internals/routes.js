@@ -178,12 +178,23 @@ describe('Internals - routes', () => {
       }
     })
 
+    it('should return the root url of the app if not passed a path', async () => {
+      const mock = {
+        path: undefined
+      }
+
+      const output = fullyQualifiedLocalPath(mock.path)
+
+      expect(output).to.be.a.string()
+      expect(output).to.equal(mockAppDomain)
+    })
+
     it('should return a fully qualified url including the passed path', async () => {
       const mock = {
         path: 'just-a-path'
       }
 
-      const output = await fullyQualifiedLocalPath(mock.path)
+      const output = fullyQualifiedLocalPath(mock.path)
 
       expect(output).to.be.a.string()
       expect(output).to.equal(`${mockAppDomain}/${mock.path}`)
@@ -196,7 +207,7 @@ describe('Internals - routes', () => {
         pathWithDomain: `https://another.domain/${mockPath}`
       }
 
-      const output = await fullyQualifiedLocalPath(mock.pathWithDomain)
+      const output = fullyQualifiedLocalPath(mock.pathWithDomain)
 
       expect(output).to.be.a.string()
       expect(output).to.equal(`${mockAppDomain}/${mockPath}`)
