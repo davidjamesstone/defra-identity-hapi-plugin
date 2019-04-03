@@ -219,7 +219,12 @@ lab.experiment('Defra.Identity HAPI plugin functionality', () => {
   lab.test('The plugin should execute our final redirect function', async () => {
     const idmConfig = server.methods.idm.getConfig()
     const idmInternals = server.methods.idm.getInternals()
-    const idmCache = server.methods.idm.getCache()
+
+    const mock = {
+      h: {
+        response: string => string
+      }
+    }
 
     const tokenSet = {
       'id_token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsifQ.eyJleHAiOjE1MjE4MjQ5NjUsIm5iZiI6MTUyMTgyMTM2NSwidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NiMDk2NzVhLWFmMjEtNGRkZS05Y2Y4LWY2MzIzNWEyMTlhMC92Mi4wLyIsInN1YiI6IjZlODdjNmU1LTljMDktNDdlMC1hMWNmLTkyYTYxZDI2MTI1ZiIsImF1ZCI6IjQ5NDg5MzViLTYxMzctNGVlOC04NmEzLTJkMGEyZTMxNDQyYiIsImlhdCI6MTUyMTgyMTM2NSwiYXV0aF90aW1lIjoxNTIxODIxMzY1LCJvaWQiOiI2ZTg3YzZlNS05YzA5LTQ3ZTAtYTFjZi05MmE2MWQyNjEyNWYiLCJnaXZlbl9uYW1lIjoiQ2hlc2hpcmUiLCJmYW1pbHlfbmFtZSI6IkNoZXNoaXJlIiwiZW1haWxzIjpbImRlZnJhQGlhbWNocmlzY2hlc2hpcmUuY28udWsiXSwidGZwIjoiQjJDXzFfYjJjLXdlYmFwcC1zaWdudXAtc2lnbmluIn0.plRV2ZoPcnXR7rj4zSexyksfoQE9AKBUaTKZTpfTcYmBmqnD159MH6sOoczWNp1mnI6ilwGj5c6Sdd0qlwaGmFOvylgebuDec2mvIbjxZ8kXSwl_GkgTE20sQVstsxhC66CU83fn7siRVLLhOWUmKD73KOFA5tb4lCYndXfbie4o0KFofWDrV-uzRJbr7BXXAyITdUCEs3gw29WTM0neKOUZJnnc930LjqAIbQmr4lvTrtq5qwj9OwE5G_vq0RVblWUuE4iQPobOMyJlUL74l74Nr1XarCqpP3RYerYRXNsRcJhasbQfknfoMrX2rnzj_h5xbSQO9cauAsphmXapfw',
@@ -266,15 +271,9 @@ lab.experiment('Defra.Identity HAPI plugin functionality', () => {
     // Set a custom preReturnPathRedirectOutcome so we know handleValidatedToken has run in its entirety
     idmConfig.callbacks.preReturnPathRedirect = (request, h, tokenSet, backToPath) => responseIdentifier
 
-    await idmInternals.routes.handleValidatedToken(dummyRequest, null, state, {}, tokenSet)
+    const outcome = await idmInternals.routes.handleValidatedToken(dummyRequest, mock.h, state, {}, tokenSet)
 
-    const [cachedDataErr, cachedData] = await to(idmCache.get(tokenSet.claims.oid))
-
-    if (cachedDataErr) {
-      console.error(cachedDataErr)
-    }
-
-    expect(cachedData.claims.sub).to.equal(tokenSet.claims.sub)
+    expect(outcome).to.be.a.string()
   })
 
   lab.test('Log out', async () => {
@@ -309,9 +308,17 @@ lab.experiment('Defra.Identity HAPI plugin functionality', () => {
       }
     }
 
+    const passed = {
+      cookieAuthSet: {
+        value: null
+      }
+    }
+
     const dummyRequest = {
       cookieAuth: {
-        set () {}
+        set (value) {
+          passed.cookieAuthSet.value = value
+        }
       },
       yar: {
         get () {},
@@ -327,7 +334,7 @@ lab.experiment('Defra.Identity HAPI plugin functionality', () => {
     await idmInternals.routes.handleValidatedToken(dummyRequest, null, state, {}, tokenSet)
 
     /** Now that we should be logged in, check for presence of cache entry before and after we log out **/
-    const [preLogoutCachedDataErr, preLogoutCachedData] = await to(idmCache.get(tokenSet.claims.sub))
+    const [preLogoutCachedDataErr, preLogoutCachedData] = await to(idmCache.get(passed.cookieAuthSet.value.cacheKey))
 
     if (preLogoutCachedDataErr) {
       console.error(preLogoutCachedDataErr)
