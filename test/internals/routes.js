@@ -52,7 +52,7 @@ describe('Internals - routes', () => {
       const output = await routeMethods.storeTokenSetResponse(mock.request, mock.tokenSet)
 
       expect(output).to.be.undefined()
-      expect(passed.cache.key).to.equal(mock.tokenSet.claims.sub)
+      expect(passed.cache.key).to.be.a.string()
       expect(passed.cache.value).to.equal({
         tokenSet: mock.tokenSet,
         claims: mock.tokenSet.claims
@@ -61,7 +61,7 @@ describe('Internals - routes', () => {
       expect(passed.cache.request).to.equal(mock.request)
 
       expect(passed.cookieAuth.value).to.equal({
-        sub: mock.tokenSet.claims.sub
+        cacheKey: passed.cache.key
       })
     })
   })

@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file. 
 
+## 4.0.4 - 3 Apr 2019
+- CPII-285 - Use a random string for cache record key
+
 ## 4.0.3 - 20 Mar 2019
 - IDM-1789 - Fix to the creation of a fully qualified domain when redirecting
 
