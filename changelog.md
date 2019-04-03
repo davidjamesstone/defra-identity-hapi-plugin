@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file. 
 
+## 4.0.5 - 3 Apr 2019
+- CPII-285 - Use existing cache record key if one exists
+
 ## 4.0.4 - 3 Apr 2019
 - CPII-285 - Use a random string for cache record key
 
