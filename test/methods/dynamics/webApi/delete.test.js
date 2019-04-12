@@ -33,13 +33,13 @@ describe('Dynamics - read', async () => {
   })
 
   describe(`Given a server with the Hapi plugin has been instantiated`, async () => {
-    it(`should contain the deleteEnrolment function on dynamics on the server methods`, async () => {
-      expect(idm.dynamics.deleteEnrolment).to.be.a.function()
+    it(`should contain the deactivateEnrolment function on dynamics on the server methods`, async () => {
+      expect(idm.dynamics.deactivateEnrolment).to.be.a.function()
     })
 
-    describe(`and given the deleteEnrolment method exists and is called`, async () => {
+    describe(`and given the deactivateEnrolment method exists and is called`, async () => {
       it(`should return a promise`, async () => {
-        const res = idm.dynamics.deleteEnrolment()
+        const res = idm.dynamics.deactivateEnrolment()
         expect(res).to.be.an.instanceOf(Promise)
         try { await res } catch (err) { }
       })
@@ -51,7 +51,7 @@ describe('Dynamics - read', async () => {
       const internals = _buildBaseInternals()
       let spyMethod
       internals.dynamics.requestPromise = async ({ method }) => { spyMethod = method }
-      await deleteBuilder({ internals }).deleteEnrolment()
+      await deleteBuilder({ internals }).deactivateEnrolment()
       expect(spyMethod).to.equal('POST')
     })
 
@@ -60,7 +60,7 @@ describe('Dynamics - read', async () => {
       let spyStem
       internals.dynamics.buildUrl = (stem) => { spyStem = stem }
       const fakeId = 'ABC123'
-      await deleteBuilder({ internals }).deleteEnrolment(fakeId)
+      await deleteBuilder({ internals }).deactivateEnrolment(fakeId)
       expect(spyStem).to.equal('/defra_lobserviceuserlinks(ABC123)/Microsoft.Dynamics.CRM.defra_deleteenrolment')
     })
   })

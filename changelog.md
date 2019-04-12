@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file. 
 
 ## 4.1.0 - 10 Apr 2019
-- IDM-1919 - Add deleteEnrolment functionality
+- IDM-1919 - Add deactivateEnrolment functionality
 
 ## 4.0.5 - 3 Apr 2019
 - CPII-285 - Use existing cache record key if one exists
