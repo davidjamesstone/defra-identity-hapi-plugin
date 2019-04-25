@@ -46,7 +46,8 @@ describe('Internals - routes', () => {
       }
 
       const routeMethods = RouteMethods({
-        cache: mock.cache
+        cache: mock.cache,
+        config: {}
       })
 
       const output = await routeMethods.storeTokenSetResponse(mock.request, mock.tokenSet)
@@ -63,6 +64,34 @@ describe('Internals - routes', () => {
       expect(passed.cookieAuth.value).to.equal({
         cacheKey: passed.cache.key
       })
+    })
+
+    it('should use the request object\'s cacheKey to set the token', async () => {
+      let spyCacheSet, spyRequestSet
+      const routeMethods = RouteMethods({
+        cache: { set: (w, x, y, z) => { spyCacheSet = [w, x, y, z] } },
+        config: { cookieName: 'testCookieAuth' }
+      })
+      const mockRequest = {
+        cookieAuth: { set: x => { spyRequestSet = x } },
+        state: { testCookieAuth: { cacheKey: 'cache-key-cache-key' } }
+      }
+      const stubTokenSet = { claims: 'claims-claims-claims' }
+      await routeMethods.storeTokenSetResponse(mockRequest, stubTokenSet)
+
+      expect(spyCacheSet).to.equal([
+        'cache-key-cache-key',
+        {
+          "claims": "claims-claims-claims",
+          "tokenSet": {
+            "claims": "claims-claims-claims"
+          }
+        },
+        undefined,
+        mockRequest
+      ])
+
+      expect(spyRequestSet.cacheKey).to.equal('cache-key-cache-key')
     })
   })
 
