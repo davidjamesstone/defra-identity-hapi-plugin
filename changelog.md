@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. 
 
-## 4.1.0 - 25 Apr 2019
+## 4.1.1 - 25 Apr 2019
 - IDM-1727 - Update entity path when getting cacheKey from request's state
 
 ## 4.1.0 - 10 Apr 2019
