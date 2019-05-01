@@ -66,7 +66,7 @@ describe('Internals - routes', () => {
       })
     })
 
-    it('should use the request object\'s cacheKey to set the token', async () => {
+    it(`should use the request object's cacheKey to set the token`, async () => {
       let spyCacheSet, spyRequestSet
       const routeMethods = RouteMethods({
         cache: { set: (w, x, y, z) => { spyCacheSet = [w, x, y, z] } },
@@ -82,9 +82,9 @@ describe('Internals - routes', () => {
       expect(spyCacheSet).to.equal([
         'cache-key-cache-key',
         {
-          "claims": "claims-claims-claims",
-          "tokenSet": {
-            "claims": "claims-claims-claims"
+          'claims': 'claims-claims-claims',
+          'tokenSet': {
+            'claims': 'claims-claims-claims'
           }
         },
         undefined,
