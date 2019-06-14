@@ -13,8 +13,9 @@ const lab = exports.lab = Lab.script()
 // const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsifQ.eyJleHAiOjE1MjE3MzQ5NTMsIm5iZiI6MTUyMTczMTM1MywidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NiMDk2NzVhLWFmMjEtNGRkZS05Y2Y4LWY2MzIzNWEyMTlhMC92Mi4wLyIsInN1YiI6IjZlODdjNmU1LTljMDktNDdlMC1hMWNmLTkyYTYxZDI2MTI1ZiIsImF1ZCI6IjY1MmY0NmQwLTI2NzAtNGEzNC05ZmJjLTAxY2Q1ZmFjZmEzNCIsIm5vbmNlIjoiZGVmYXVsdE5vbmNlIiwiaWF0IjoxNTIxNzMxMzUzLCJhdXRoX3RpbWUiOjE1MjE3MzEzNTMsIm9pZCI6IjZlODdjNmU1LTljMDktNDdlMC1hMWNmLTkyYTYxZDI2MTI1ZiIsImdpdmVuX25hbWUiOiJDaGVzaGlyZSIsImZhbWlseV9uYW1lIjoiQ2hlc2hpcmUiLCJlbWFpbHMiOlsiZGVmcmFAaWFtY2hyaXNjaGVzaGlyZS5jby51ayJdLCJ0ZnAiOiJCMkNfMV9iMmMtd2ViYXBwLXNpZ251cC1zaWduaW4ifQ.kFNwgCFuYmR0T1Y0fkggMd2OjrNOaDFRJe1wfX3qAtEl49OP3lfAhLQIyAdlpT3Yotp4oanhUoDMlgMXsP1z1JhRUT_Bsb892tF8-ZRxOHggO3Jciy1RmTnEFJDJH_FMLvExBgliuo8qhYu0g_gqUZVC1f5FogpMtzAe63d2HXVheicw3OsrBHBBaHMLRYnCH0PvoA-UqU0-DAHkgxcg7ldAqxvVCULT9GxQc6_FpZWP9O6lx0ECCRoAir5Lnr7nRGD5gkFhJlAa3szJQmC7ETh8eIJbeTHwxWpNeun-YxDkiqMrbgo9khqRGiViA0lnIzqq899LBhdtRUoY7gu0gw'
 
 const Server = require('./server')
+const registerMethods = require('../lib/methods')
 
-lab.experiment('Defra.Identity HAPI plugin functionality', () => {
+lab.experiment('Defra.Identity HAPI plugin server methods', () => {
   let server
 
   // Get instance of server before each test
@@ -377,5 +378,149 @@ lab.experiment('Defra.Identity HAPI plugin functionality', () => {
     expect(res.statusCode).to.equal(200)
     expect(res.headers['content-type']).to.equal('application/javascript; charset=utf-8')
     expect(res.payload).to.equal(fileContents)
+  })
+
+  lab.experiment('idm.refreshToken', async () => {
+    let methods = {}
+    let mock = {}
+    let passed = {
+      getClient: {
+        options: null
+      },
+      getCredentials: {
+        request: null
+      },
+      refresh: {
+        refreshToken: null
+      },
+      readServiceEnrolment: {
+        serviceId: null,
+        contactId: null
+      },
+      storeTokenSetResponse: {
+        request: null,
+        refreshTokenSet: null
+      }
+    }
+
+    lab.beforeEach(() => {
+      methods = {}
+
+      mock = {
+        request: Symbol('request'),
+        credentials: {
+          claims: {
+            tfp: Symbol('trust framework policy'),
+            contactId: Symbol('contact id')
+          },
+          tokenSet: {
+            refresh_token: Symbol('refresh token')
+          }
+        },
+        client: {
+          refresh: (refreshToken) => {
+            passed.refresh.refreshToken = refreshToken
+
+            return mock.refreshedTokenSet
+          }
+        },
+        refreshedTokenSet: {
+          claims: {
+            contactId: null
+          }
+        },
+        serviceRoles: {
+          roles: Symbol('roles'),
+          mappings: Symbol('mappings')
+        },
+        options: {
+          config: {
+            serviceId: Symbol('service id')
+          },
+          server: {
+            method: (methodName, method) => {
+              methods[methodName] = method
+            },
+            methods: {
+              idm: {
+                dynamics: {
+                  readServiceEnrolment: (serviceId, contactId) => {
+                    passed.readServiceEnrolment.serviceId = serviceId
+                    passed.readServiceEnrolment.contactId = contactId
+
+                    return mock.serviceRoles
+                  }
+                }
+              }
+            }
+          },
+          internals: {
+            client: {
+              getClient: (options) => {
+                passed.getClient.options = options
+
+                return mock.client
+              }
+            },
+            routes: {
+              storeTokenSetResponse: (request, refreshTokenSet) => {
+                passed.storeTokenSetResponse.request = request
+                passed.storeTokenSetResponse.refreshTokenSet = refreshTokenSet
+              }
+            }
+          }
+        },
+        pluginModules: {
+          registerDynamicsMethods: () => {}
+        },
+        modules: {
+          getCredentials: (request) => {
+            passed.getCredentials.request = request
+
+            return mock.credentials
+          }
+        }
+      }
+
+      registerMethods(mock.options, mock.pluginModules)
+    })
+
+    lab.experiment('if contact id is present in the refreshed token', async () => {
+      lab.test('it should refresh the token without manually supplementing it with the contact id', async () => {
+        mock.refreshedTokenSet.claims.contactId = Symbol('refreshed contact id')
+
+        await methods['idm.refreshToken'](mock.request, null, mock.modules)
+
+        expect(passed.getClient.options).to.equal({
+          policyName: mock.credentials.claims.tfp
+        })
+        expect(passed.getCredentials.request).to.equal(mock.request)
+        expect(passed.refresh.refreshToken).to.equal(mock.credentials.tokenSet.refresh_token)
+        expect(passed.readServiceEnrolment.serviceId).to.equal(mock.options.config.serviceId)
+        expect(passed.readServiceEnrolment.contactId).to.equal(mock.refreshedTokenSet.claims.contactId)
+        expect(passed.storeTokenSetResponse.request).to.equal(mock.request)
+        expect(passed.storeTokenSetResponse.refreshTokenSet).to.equal(mock.refreshedTokenSet)
+        expect(passed.storeTokenSetResponse.refreshTokenSet.claims.roles).to.equal(mock.serviceRoles.roles)
+        expect(passed.storeTokenSetResponse.refreshTokenSet.claims.roleMappings).to.equal(mock.serviceRoles.mappings)
+      })
+    })
+
+    lab.experiment('if contact id is not present in the refreshed token', async () => {
+      lab.test('it should refresh the token and manually supplement it with the contact id', async () => {
+        await methods['idm.refreshToken'](mock.request, null, mock.modules)
+
+        expect(passed.getClient.options).to.equal({
+          policyName: mock.credentials.claims.tfp
+        })
+        expect(passed.getCredentials.request).to.equal(mock.request)
+        expect(passed.refresh.refreshToken).to.equal(mock.credentials.tokenSet.refresh_token)
+        expect(passed.readServiceEnrolment.serviceId).to.equal(mock.options.config.serviceId)
+        expect(passed.readServiceEnrolment.contactId).to.equal(mock.credentials.claims.contactId)
+        expect(passed.storeTokenSetResponse.request).to.equal(mock.request)
+        expect(passed.storeTokenSetResponse.refreshTokenSet).to.equal(mock.refreshedTokenSet)
+        expect(passed.storeTokenSetResponse.refreshTokenSet.claims.roles).to.equal(mock.serviceRoles.roles)
+        expect(passed.storeTokenSetResponse.refreshTokenSet.claims.roleMappings).to.equal(mock.serviceRoles.mappings)
+      })
+    })
   })
 })
