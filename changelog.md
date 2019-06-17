@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. 
 
-## 4.1.3 - 14 Jun 2019
+## 4.1.4 - 14 Jun 2019
 - IDM-2135 - Fix to refreshing the token for the second time since registration
 
 ## 4.1.1 - 25 Apr 2019
