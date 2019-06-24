@@ -122,6 +122,33 @@ describe('Internals - routes', () => {
 
       expect(output).to.equal(`${mock.config.appDomain}${mock.config.disallowedRedirectPath}?errorMessage=${encodeURIComponent(mock.authorisationErr.message)}&errorDescription=${encodeURIComponent(mock.authorisationErr.error_description)}&state=%7B%20state%3A%20testState%20%7D`)
     })
+
+    it('should redirect to full qualified error redirect url but without a key for "state" in the query if there is no value for it', async () => {
+      const mock = {
+        request: Symbol('request'),
+        h: {
+          redirect: (path) => path
+        },
+        savedState: {},
+        authorisationErr: {
+          message: 'error message',
+          error_description: 'error description',
+          state: ''
+        },
+        config: {
+          appDomain: 'https://app.domain',
+          disallowedRedirectPath: '/disallowed-redirect-path'
+        }
+      }
+
+      const routeMethods = RouteMethods({
+        config: mock.config
+      })
+
+      const output = await routeMethods.handleAuthorisationError(mock.request, mock.h, mock.savedState, mock.authorisationErr)
+
+      expect(output).to.equal(`${mock.config.appDomain}${mock.config.disallowedRedirectPath}?errorMessage=${encodeURIComponent(mock.authorisationErr.message)}&errorDescription=${encodeURIComponent(mock.authorisationErr.error_description)}`)
+    })
   })
 
   describe('handleValidatedToken', async () => {
