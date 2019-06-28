@@ -120,10 +120,10 @@ describe('Internals - routes', () => {
 
       const output = await routeMethods.handleAuthorisationError(mock.request, mock.h, mock.savedState, mock.authorisationErr)
 
-      expect(output).to.equal(`${mock.config.appDomain}${mock.config.disallowedRedirectPath}?errorMessage=${encodeURIComponent(mock.authorisationErr.message)}&errorDescription=${encodeURIComponent(mock.authorisationErr.error_description)}&state=%7B%20state%3A%20testState%20%7D`)
+      expect(output).to.equal(`${mock.config.appDomain}${mock.config.disallowedRedirectPath}?errorMessage=${encodeURIComponent(mock.authorisationErr.message)}&errorDescription=${encodeURIComponent(mock.authorisationErr.error_description)}&state=%22%7B%20state%3A%20testState%20%7D%22`)
     })
 
-    it('should redirect to full qualified error redirect url but without a key for "state" in the query if there is no value for it', async () => {
+    it('should redirect to full qualified error redirect url with a key for "state" in the query but no value for it', async () => {
       const mock = {
         request: Symbol('request'),
         h: {
@@ -147,7 +147,7 @@ describe('Internals - routes', () => {
 
       const output = await routeMethods.handleAuthorisationError(mock.request, mock.h, mock.savedState, mock.authorisationErr)
 
-      expect(output).to.equal(`${mock.config.appDomain}${mock.config.disallowedRedirectPath}?errorMessage=${encodeURIComponent(mock.authorisationErr.message)}&errorDescription=${encodeURIComponent(mock.authorisationErr.error_description)}`)
+      expect(output).to.equal(`${mock.config.appDomain}${mock.config.disallowedRedirectPath}?errorMessage=${encodeURIComponent(mock.authorisationErr.message)}&errorDescription=${encodeURIComponent(mock.authorisationErr.error_description)}&state=`)
     })
   })
 
