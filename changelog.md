@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 4.1.5 - 24 Jun 2019
+## 4.1.7 - 28 Jun 2019
 - IDM-1980 - Add the state information from B2C to the authorisation error handler
 
 ## 4.1.4 - 14 Jun 2019
