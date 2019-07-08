@@ -31,47 +31,42 @@ module.exports = [
     handler: async function (request) {
       const { idm } = request.server.methods
       const { enrolmentStatusId } = request.payload
-      const claims = await idm.getClaims(request)
-      let parsedAuthzRoles = idm.dynamics.parseAuthzRoles(claims)
-
       const newEnrolmentStatusId = Number(enrolmentStatusId)
-      const { contactId } = claims
-
-      // Get the accounts this contact is linked with
-      const contactAccountLinks = await idm.dynamics.readContactsAccountLinks(contactId)
+      const { serviceRoleId, identity: { serviceId } } = config
 
       try {
-        // If this contact has no links to any accounts, then stop. There is a problem
+        const claims = await idm.getClaims(request)
+        const parsedAuthzRoles = idm.dynamics.parseAuthzRoles(claims)
+        const { contactId } = claims
+
+        // Get the accounts this contact is linked with
+        const contactAccountLinks = await idm.dynamics.readContactsAccountLinks(contactId)
+
         if (!contactAccountLinks || !contactAccountLinks.length) {
           throw new Error(`Contact record not linked to any accounts - contactId ${contactId}`)
         }
 
-        const { serviceRoleId } = config
+        // Get details of our existing enrolments for this service
+        const currentEnrolments = await idm.dynamics.readEnrolment(contactId, null, null, null, serviceId, true)
 
-        if (!parsedAuthzRoles.flat.length) {
-          // Create enrolments
-          await Promise.all(
-            contactAccountLinks.map(
-              link => idm.dynamics.createEnrolment(contactId, link.connectionDetailsId, newEnrolmentStatusId, link.accountId, undefined, serviceRoleId)
-            )
-          )
-        } else {
-          // Need lobServiceUserLinkIds from current enrolments to update enrolments
-          // Get all the ids of the roles with which we have an existing enrolment
-          const existingRoleIds = parsedAuthzRoles.flat.map(role => role.roleId)
+        // Our array of tasks
+        let promises = []
 
-          // Get all our org ids with which we have a pending enrolment
-          const existingRoleOrgIds = parsedAuthzRoles.flat.map(role => role.orgId || null)
+        // Create promises to create enrolments for links that we currently don't have enrolments for
+        promises = promises.concat(contactAccountLinks.map(link => {
+          const existingEnrolment = parsedAuthzRoles.rolesByOrg[link.accountId]
 
-          // Get details of our existing enrolments matching the above role ids and org ids
-          const currentEnrolments = await idm.dynamics.readEnrolment(contactId, existingRoleIds, existingRoleOrgIds)
+          if (!existingEnrolment) {
+            return idm.dynamics.createEnrolment(contactId, link.connectionDetailsId, newEnrolmentStatusId, link.accountId, undefined, serviceRoleId)
+          }
+        }).filter(i => !!i))
 
-          // Create an array of our enrolment
-          const updateEnrolmentPromiseArr = currentEnrolments.value
-            .map(currentEnrolment => idm.dynamics.updateEnrolmentStatus(currentEnrolment.defra_lobserviceuserlinkid, newEnrolmentStatusId))
+        // Create promises to update the status of enrolments we do already have
+        promises = promises.concat(currentEnrolments.value
+          .map(currentEnrolment => idm.dynamics.updateEnrolmentStatus(currentEnrolment.defra_lobserviceuserlinkid, newEnrolmentStatusId)))
 
-          await Promise.all(updateEnrolmentPromiseArr)
-        }
+        // Wait for all promises to complete
+        await Promise.all(promises)
 
         // Refresh our token with new roles
         await idm.refreshToken(request)
