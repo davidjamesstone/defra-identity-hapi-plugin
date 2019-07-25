@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## 4.1.8 - 25 Jul 2019
+- Npm audit fixes
+
 ## 4.1.7 - 28 Jun 2019
 - IDM-1980 - Add the state information from B2C to the authorisation error handler
 
