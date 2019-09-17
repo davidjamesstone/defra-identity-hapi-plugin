@@ -11,12 +11,6 @@ module.exports = {
     domain: env.DOMAIN || `http://${env.HOST}:${env.PORT}`
   },
 
-  serviceList: {
-    'chemicals': 'c0ca7608-de9b-e811-a94f-000d3a3a8543',
-    'mmo': 'b8717ec3-66b6-e811-a954-000d3a29b5de',
-    'vmd': 'a65e89e7-66b6-e811-a954-000d3a29b5de'
-  },
-
   identity: {
     identityAppUrl: env.IDENTITY_APP_URL,
     serviceId: env.IDENTITY_SERVICEID,

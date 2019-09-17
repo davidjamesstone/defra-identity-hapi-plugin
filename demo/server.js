@@ -113,8 +113,6 @@ async function start () {
     }
   } = config
 
-  // serviceId = // TODO: Over-ride the serviceId with the one stashed in the session or passed on the querystring
-
   await server.register({
     plugin: require('../'),
     options: {
