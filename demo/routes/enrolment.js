@@ -32,6 +32,8 @@ module.exports = [
       const { idm } = request.server.methods
       const { enrolmentStatusId } = request.payload
       const newEnrolmentStatusId = Number(enrolmentStatusId)
+
+      // TODO: Get the serviceId from the session where we stashed it earlier
       const { serviceRoleId, identity: { serviceId } } = config
 
       try {

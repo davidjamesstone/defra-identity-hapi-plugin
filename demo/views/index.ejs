@@ -1,94 +1,112 @@
 <% include ./layout/top.ejs %>
 
-    <div class="breadcrumbs breadcrumb-two-thirds">
-        <ol>
-            <li><a href="/">Home</a></li>
-            <li>Defra service</li>
-        </ol>
+<script>
+  function updateServiceId() {
+    var selector = document.getElementById('service-selector');
+    var selectedServiceId = selector.options[selector.selectedIndex].getAttribute('serviceid');
+    var hiddenField = document.getElementById('hidden-serviceid')
+    hiddenField.value = selectedServiceId
+  }
+  window.onload = updateServiceId
+</script>
+
+<div class="breadcrumbs breadcrumb-two-thirds">
+  <ol>
+    <li><a href="/">Home</a></li>
+    <li>Defra service</li>
+  </ol>
+</div>
+
+<div class="grid-row">
+
+  <div class="column-two-thirds">
+
+    <h1 class="heading-xlarge2">Welcome to a defra service</h1>
+
+    <div>
+      <section class="intro">
+
+        <p>This is a demo service to allow consuming services to ...</p>
+
+        This service can be used to:
+        <ul class="list-bullet">
+          <li>quis nostrud exercitation ullamco laboris nisi ut aliquip ex</li>
+          <li>ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate</li>
+        </ul>
+
+        <br>
+
+        <div class="panel">
+          <p>This page is also available in Welsh (<a href="#">Cymraeg</a>).</p>
+        </div>
+
+        <br>
+        <form method="GET" action="/login/out?backToPath=%2Faccount">
+          <div class="row">
+            <label for="service">Service to mimic: </label>
+            <select name="journey" id="service-selector" class="service-selector" onchange="updateServiceId()">
+              <option value="chemicals" serviceid="c0ca7608-de9b-e811-a94f-000d3a3a8543">Comply with UK
+                REACH</option>
+              <option value="mmo" serviceid="b8717ec3-66b6-e811-a954-000d3a29b5de">Fish Exports</option>
+              <option value="vmd" serviceid="a65e89e7-66b6-e811-a954-000d3a29b5de">Apply to licence a
+                Veterinary Medicine</option>
+            </select>
+            <input type="hidden" name="serviceId" id="hidden-serviceid" value="" />
+          </div>
+          <br>
+          <div class="row">
+            <label for="forceLogin">Force Login:</label>
+            <input type="checkbox" name="forceLogin" id="forceLogin" value="yes" class="bigbox" />
+          </div>
+          <br>
+          <div class="row">
+            <button type="submit" class="button button-start">Start now</button>
+          </div>
+        </form>
+      </section>
+
+      <br>
+
     </div>
 
-    <div class="grid-row">
+  </div>
 
-        <div class="column-two-thirds">
+  <div class="column-one-third">
+    <aside class="govuk-related-items">
+      <h2 class="heading-medium">Useful links</h2>
+      <ul class="font-small">
+        <li>
+          <a href="#">Velit esse cillum dolore eu fugiat nulla pariatur</a>
+        </li>
+        <li>
+          <a href="#">Excepteur sint occaecat cupidatat non
+            proident</a>
+        </li>
+        <li>
+          <a href="#">Sunt in culpa qui officia</a>
+        </li>
+      </ul>
 
-            <h1 class="heading-xlarge2">Welcome to a defra service</h1>
+      <h2 class="heading-medium-column">Support</h2>
+      <ul class="font-small">
+        <li>
+          Helpdesk: 0300 123 4567
+        </li>
+        <li>
+          <a href="#">Helpdesk mailbox</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
 
-            <div>
-                <section class="intro">
-
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-                        labore et dolore magna aliqua. Ut enim ad minim veniam, </p>
-
-                    This service can be used to:
-                    <ul class="list-bullet">
-                        <li>quis nostrud exercitation ullamco laboris nisi ut aliquip ex</li>
-                        <li>ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate</li>
-                    </ul>
-
-                    <br>
-
-                    <div class="panel">
-                        <p>This page is also available in Welsh (<a href="#">Cymraeg</a>).</p>
-                    </div>
-
-                    <br>
-
-                    <div>
-                        <p><a class="button button-start"
-                              href="<%= idm.generateAuthenticationUrl('/account', {forceLogin: false}) %>"
-                              role="button">Start
-                                now</a></p>
-                    </div>
-
-                    <div>
-                        <p><a class="button button-start"
-                              href="<%= idm.generateAuthenticationUrl('/account', {forceLogin: true}) %>" role="button">Start
-                                now (Force login)</a></p>
-                    </div>
-                </section>
-
-                <br>
-
-            </div>
-
-        </div>
-
-        <div class="column-one-third">
-            <aside class="govuk-related-items">
-                <h2 class="heading-medium">Useful links</h2>
-                <ul class="font-small">
-                    <li>
-                        <a href="#">Velit esse cillum dolore eu fugiat nulla pariatur</a>
-                    </li>
-                    <li>
-                        <a href="#">Excepteur sint occaecat cupidatat non
-                            proident</a>
-                    </li>
-                    <li>
-                        <a href="#">Sunt in culpa qui officia</a>
-                    </li>
-                </ul>
-
-                <h2 class="heading-medium-column">Support</h2>
-                <ul class="font-small">
-                    <li>
-                        Helpdesk: 0300 123 4567
-                    </li>
-                    <li>
-                        <a href="#">Helpdesk mailbox</a>
-                    </li>
-                </ul>
-            </aside>
-        </div>
-
-        <div class="column-two-thirds">
-            <br>
-            <br>
-            <div>
-                <p><a href="#" class="link-gray">Is there anything wrong with this page?</a></p>
-            </div>
-        </div>
-
+  <div class="column-two-thirds">
+    <br>
+    <br>
+    <div>
+      <p><a href="#" class="link-gray">Is there anything wrong with this page?</a></p>
     </div>
+  </div>
+
+</div>
 
 <% include ./layout/bottom.ejs %>
