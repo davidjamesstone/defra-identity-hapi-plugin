@@ -4,8 +4,8 @@
   function updateServiceId() {
     var selector = document.getElementById('service-selector');
     var selectedServiceId = selector.options[selector.selectedIndex].getAttribute('serviceid');
-    var hiddenField = document.getElementById('hidden-serviceid')
-    hiddenField.value = selectedServiceId
+    var hiddenServiceId = document.getElementById('hidden-serviceid')
+    hiddenServiceId.value = selectedServiceId
   }
   window.onload = updateServiceId
 </script>
@@ -46,15 +46,16 @@
             <label for="service">Service to mimic: </label>
             <select name="journey" id="service-selector" class="service-selector" onchange="updateServiceId()">
               <option value="chemicals" serviceid="c0ca7608-de9b-e811-a94f-000d3a3a8543">Comply with UK REACH</option>
-              <option value="default" serviceid="b8717ec3-66b6-e811-a954-000d3a29b5de">Fish Exports</option>
-              <option value="default" serviceid="a65e89e7-66b6-e811-a954-000d3a29b5de">Apply to licence a Veterinary Medicine</option>
-              <option value="default" serviceid="8b5214ee-62b6-e811-a954-000d3a29b5de">IPAFFS</option>
-              <option value="default" serviceid="34b46f99-66b6-e811-a954-000d3a29b5de">Exporter Service</option>
-              <option value="default" serviceid="a99fcef9-66b6-e811-a954-000d3a29b5de">VMD Secure Messaging</option>
-              <option value="default" serviceid="39c4599e-27de-e811-a842-000d3ab4f534">Report an Adverse Event to a Veterinary Medicine</option>
-              <option value="default" serviceid="418e0099-8675-e911-a850-000d3ab4ffef">Certifier Service</option>
+              <option value="mmo" serviceid="b8717ec3-66b6-e811-a954-000d3a29b5de">Fish Exports</option>
+              <option value="vmdapply" serviceid="a65e89e7-66b6-e811-a954-000d3a29b5de">Apply to licence a Veterinary Medicine</option>
+              <option value="ipaffs" serviceid="8b5214ee-62b6-e811-a954-000d3a29b5de">IPAFFS</option>
+              <option value="exports" serviceid="34b46f99-66b6-e811-a954-000d3a29b5de">Exporter Service</option>
+              <option value="vmdsecure" serviceid="a99fcef9-66b6-e811-a954-000d3a29b5de">VMD Secure Messaging</option>
+              <option value="vmdreport" serviceid="39c4599e-27de-e811-a842-000d3ab4f534">Report an Adverse Event to a Veterinary Medicine</option>
+              <option value="certifier" serviceid="418e0099-8675-e911-a850-000d3ab4ffef">Certifier Service</option>
             </select>
             <input type="hidden" name="serviceId" id="hidden-serviceid" value="" />
+            <input type="hidden" name="backToPath" id="hidden-backToPath" value="/account" />
           </div>
           <br>
           <div class="row">
