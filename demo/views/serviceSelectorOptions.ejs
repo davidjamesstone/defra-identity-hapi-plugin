@@ -1,0 +1,3 @@
+    <% Object.keys(serviceLookup).forEach((thisKey)=>{ %>
+        <option value="<%= thisKey %>" servicesid="<%= serviceLookup[thisKey].serviceId %>"><%= serviceLookup[thisKey].serviceName %></option>
+    <% }); %>

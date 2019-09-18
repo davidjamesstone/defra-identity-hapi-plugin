@@ -1,4 +1,5 @@
 // const config = require('../config')
+const serviceLookup = require('../lib/services')
 
 module.exports = [
   {
@@ -17,6 +18,7 @@ module.exports = [
         title: 'enrolment',
         idm,
         claims,
+        serviceLookup,
         parsedAuthzRoles,
         credentials: await idm.getCredentials(request)
       })
@@ -30,26 +32,13 @@ module.exports = [
     },
     handler: async function (request) {
       const { idm } = request.server.methods
-      const { enrolmentStatusId } = request.payload
+      const { enrolmentStatusId, journey } = request.payload
       const newEnrolmentStatusId = Number(enrolmentStatusId)
-
-      // A structure that matches the default service role for a given service name, eg chemicals is 'REACH Manager'
-      const serviceRoleIdLookup = {
-        'chemicals': 'e45f4250-c2cc-e811-a95b-000d3a29ba60', // REACH Manager
-        'mmo': '23016fc5-7acc-e811-a95b-000d3a29ba60', // Admin User
-        'vmdapply': '0dee7d46-71b6-e811-a954-000d3a29b5de', // Standard User
-        'ipaffs': '57502079-ce02-e911-a847-000d3ab4ffef', // Administrator
-        'exports': 'cc108aff-b6df-e811-a845-000d3ab4ffef', // Official Veterinarian
-        'vmdsecure': '3015249a-c1cc-e811-a95b-000d3a29ba6', // Standard User
-        'vmdreport': '3c669b52-71b6-e811-a954-000d3a29b5de', // Standard User
-        'certifier': '14c9c4b4-8675-e911-a850-000d3ab4ffef' // Certifier
-      }
 
       // TODO: Get the serviceId from the session where we stashed it earlier
       // const { serviceRoleId, identity: { serviceId } } = config
-      const cache = idm.getCache()
-      const serviceId = await cache.get('sessionId')
-      const serviceRoleId = serviceRoleIdLookup(serviceId)
+      const serviceRoleId = serviceLookup[journey].roleId
+      const serviceId = serviceLookup[journey].serviceId
 
       try {
         const claims = await idm.getClaims(request)
