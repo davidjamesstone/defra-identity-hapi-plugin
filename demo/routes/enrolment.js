@@ -4,13 +4,13 @@ const serviceLookup = require('../lib/services')
 module.exports = [
   {
     method: 'GET',
-    path: '/enrolment',
+    path: '/enrolment/{journey}',
     options: {
       auth: 'idm'
     },
     handler: async function (request, h) {
+      const { journey } = request.params
       const { idm } = request.server.methods
-
       const claims = await idm.getClaims(request)
       const parsedAuthzRoles = idm.dynamics.parseAuthzRoles(claims)
 
@@ -18,6 +18,7 @@ module.exports = [
         title: 'enrolment',
         idm,
         claims,
+        journey,
         serviceLookup,
         parsedAuthzRoles,
         credentials: await idm.getCredentials(request)
@@ -26,11 +27,11 @@ module.exports = [
   },
   {
     method: 'POST',
-    path: '/enrolment',
+    path: '/enrolment/{journey}',
     options: {
       auth: 'idm'
     },
-    handler: async function (request) {
+    handler: async function (request, h) {
       const { idm } = request.server.methods
       const { enrolmentStatusId, journey } = request.payload
       const newEnrolmentStatusId = Number(enrolmentStatusId)
@@ -77,7 +78,8 @@ module.exports = [
         // Refresh our token with new roles
         await idm.refreshToken(request)
 
-        return 'Enrolment successfully updated. <a href="/enrolment">Click here to return</a>'
+        // return 'Enrolment successfully updated. <a href="/enrolment">Click here to return</a>'
+        return h.redirect(`/account/${journey}`)
       } catch (e) {
         console.error(e)
 
