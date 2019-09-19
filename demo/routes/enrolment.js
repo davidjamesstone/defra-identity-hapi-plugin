@@ -65,8 +65,17 @@ module.exports = [
         // Get details of our existing enrolments for this service
         const currentEnrolments = await idm.dynamics.readEnrolment(contactId, null, null, null, serviceId, true)
 
+        const thisConnection = currentEnrolments.value.find(conn => conn.accountId === accountId)
+        const existingEnrolment = parsedAuthzRoles.rolesByOrg[accountId]
+        if (!existingEnrolment && thisConnection) {
+          await idm.dynamics.createEnrolment(contactId, thisConnection.connectionDetailsId, newEnrolmentStatusId, thisConnection.accountId, undefined, serviceRoleId)
+          await idm.dynamics.updateEnrolmentStatus(thisConnection.defra_lobserviceuserlinkid, newEnrolmentStatusId)
+          // Refresh our token with new roles
+          await idm.refreshToken(request)
+        }
+
         // Our array of tasks
-        let promises = []
+        // let promises = []
 
         // Create promises to create enrolments for links that we currently don't have enrolments for
         // promises = promises.concat(contactAccountLinks.map(link => {
@@ -81,18 +90,8 @@ module.exports = [
         //   currentEnrolments.value.map(currentEnrolment => idm.dynamics.updateEnrolmentStatus(currentEnrolment.defra_lobserviceuserlinkid, newEnrolmentStatusId))
         // )
 
-        const thisConnection = currentEnrolments.value.find(conn => conn.accountId === accountId)
-        const existingEnrolment = parsedAuthzRoles.rolesByOrg[accountId]
-        if (!existingEnrolment && thisConnection) {
-          await idm.dynamics.createEnrolment(contactId, thisConnection.connectionDetailsId, newEnrolmentStatusId, thisConnection.accountId, undefined, serviceRoleId)
-          await idm.dynamics.updateEnrolmentStatus(thisConnection.defra_lobserviceuserlinkid, newEnrolmentStatusId)
-        }
-
         // Wait for all promises to complete
-        await Promise.all(promises)
-
-        // Refresh our token with new roles
-        await idm.refreshToken(request)
+        // await Promise.all(promises)
 
         // return 'Enrolment successfully updated. <a href="/enrolment">Click here to return</a>'
         return h.redirect(`/enrolment/${journey}`)
