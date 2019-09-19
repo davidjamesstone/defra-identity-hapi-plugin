@@ -47,7 +47,7 @@ module.exports = [
             accountName: accountNameFromId[conn.accountId],
             accountId: conn.accountId,
             enrolmentType: 'None',
-            serviceName: 'None',
+            serviceName: 'Ready to enrol',
             status: 'None',
             connectionType: 'None'
           })
