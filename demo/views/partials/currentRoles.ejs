@@ -1,7 +1,7 @@
 <% parsedAuthzRoles.flat.forEach((thisRole)=>{ %>
 <tr>
-  <td><%= thisRole.orgName %></td>
-  <td><%= thisRole.roleName %></td>
-  <td><%= thisRole.orgRoleStatusName %></td>
+  <td title="<%= thisRole.orgId %>"><%= thisRole.orgName %></td>
+  <td title="<%= thisRole.roleId %>" ><%= thisRole.roleName %></td>
+  <td title="<%= thisRole.orgRoleStatusIdNumber %>"><%= thisRole.orgRoleStatusName %></td>
 </tr>
 <% }) %>

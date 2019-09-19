@@ -10,10 +10,27 @@ module.exports = [
     },
     handler: async function (request, h) {
       const { journey } = request.params
+      const errorMessage = !serviceLookup.hasOwnProperty(journey) ? 'Invalid Journey Type!' : undefined
+      if (errorMessage) {
+        return h.view('enrolment', {
+          title: 'enrolment',
+          contactId: '',
+          journey,
+          errorMessage,
+          serviceName: '',
+          serviceLookup,
+          accountNames: [],
+          parsedAuthzRoles: { flat: () => ([]) }
+        })
+      }
       const { idm } = request.server.methods
+      const serviceId = serviceLookup[journey].serviceId
+      let config = idm.getConfig()
+      config.serviceId = serviceId
+      await idm.refreshToken(request)
       const claims = await idm.getClaims(request)
       const parsedAuthzRoles = idm.dynamics.parseAuthzRoles(claims)
-      const { contactId } = claims
+      const { contactId } = claims || request.params
       // read the connections for the current contact
       const rawConnections = await idm.dynamics.readContactsAccountLinks(contactId)
       // read the accounts associated with the connections
@@ -30,6 +47,9 @@ module.exports = [
         idm,
         claims,
         journey,
+        errorMessage,
+        serviceName: serviceLookup[journey].serviceName,
+        contactId,
         accountNames,
         serviceLookup,
         parsedAuthzRoles,
@@ -62,38 +82,17 @@ module.exports = [
           throw new Error(`Contact record not linked to any accounts - contactId ${contactId}`)
         }
 
-        // Get details of our existing enrolments for this service
-        const currentEnrolments = await idm.dynamics.readEnrolment(contactId, null, null, null, serviceId, true)
-
-        const thisConnection = currentEnrolments.value.find(conn => conn.accountId === accountId)
+        const thisLink = contactAccountLinks.find(conn => conn.accountId === accountId)
         const existingEnrolment = parsedAuthzRoles.rolesByOrg[accountId]
-        if (!existingEnrolment && thisConnection) {
-          await idm.dynamics.createEnrolment(contactId, thisConnection.connectionDetailsId, newEnrolmentStatusId, thisConnection.accountId, undefined, serviceRoleId)
-          await idm.dynamics.updateEnrolmentStatus(thisConnection.defra_lobserviceuserlinkid, newEnrolmentStatusId)
-          // Refresh our token with new roles
-          await idm.refreshToken(request)
+
+        // Create an enrolment for this user/organisation/service combination
+        if (!existingEnrolment && thisLink) {
+          await idm.dynamics.createEnrolment(contactId, thisLink.connectionDetailsId, newEnrolmentStatusId, accountId, undefined, serviceRoleId)
         }
-
-        // Our array of tasks
-        // let promises = []
-
-        // Create promises to create enrolments for links that we currently don't have enrolments for
-        // promises = promises.concat(contactAccountLinks.map(link => {
-        //   const existingEnrolment = parsedAuthzRoles.rolesByOrg[link.accountId]
-        //   if (!existingEnrolment) {
-        //     return idm.dynamics.createEnrolment(contactId, link.connectionDetailsId, newEnrolmentStatusId, link.accountId, undefined, serviceRoleId)
-        //   }
-        // }).filter(i => !!i))
-
-        // Create promises to update the status of enrolments we do already have
-        // promises = promises.concat(
-        //   currentEnrolments.value.map(currentEnrolment => idm.dynamics.updateEnrolmentStatus(currentEnrolment.defra_lobserviceuserlinkid, newEnrolmentStatusId))
-        // )
-
-        // Wait for all promises to complete
-        // await Promise.all(promises)
-
-        // return 'Enrolment successfully updated. <a href="/enrolment">Click here to return</a>'
+        // Refresh our token with new roles and set the plugin serviceId
+        let config = idm.getConfig()
+        config.serviceId = serviceId
+        await idm.refreshToken(request)
         return h.redirect(`/enrolment/${journey}`)
       } catch (e) {
         console.error(e)

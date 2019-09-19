@@ -9,10 +9,16 @@
 
 <div class="grid-row">
     <div class="column-full">
-
+        <% if (errorMessage) { %>            
+            <%- include partials/validTypes.ejs %>
+        <% } %>
         <h3 class="heading-large">Choose your enrolment status</h3>
 
         <form method="post">
+            <div class="row">
+                <label for="contactId">ContactId:</label>
+                <input type="text" disabled="disabled" value="<%= contactId %>" class="service-selector" />
+            </div>
             <div class="row">
                 <label for="accountId">Organisation:</label>
                 <select name="accountId" id="accountid" class="service-selector">
@@ -22,7 +28,7 @@
             <div class="row">
                 <label for="journey">Service to impersonate: </label>
                 <select name="journey" id="journey" class="service-selector">
-                    <%- include partials/serviceSelectorOptions.ejs %>
+                    <%- include partials/journeySelectorOptions.ejs %>
                 </select>
             </div>
             <div class="row">
@@ -44,7 +50,7 @@
         <div class="row">
             <% if (parsedAuthzRoles.flat.length) { %>
             <h3 class="heading-large">
-                You currently have the following roles:
+                You currently have the following roles in "<%= serviceName %>":
             </h3>
             <table class="govuk-table">
                 <tr>
@@ -56,7 +62,7 @@
             </table>
             <% }else{ %>
             <h3 class="heading-large">
-                You currently have no roles with this service
+                You currently have no roles with "<%= serviceName %>"
             </h3>
             <% } %>
         </div>

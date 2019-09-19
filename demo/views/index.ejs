@@ -3,12 +3,9 @@
 <script>
   function updateServiceId() {
     var selector = document.getElementById('service-selector');
-    var selectedServiceId = selector.options[selector.selectedIndex].getAttribute('serviceid');
-    var selectedJourney = selector.options[selector.selectedIndex].value;
-    var hiddenServiceId = document.getElementById('hidden-serviceid')    
-    hiddenServiceId.value = selectedServiceId
-    var hiddenBackToPath = document.getElementById('hidden-backToPath')
-    hiddenBackToPath.value = '/account/' + selectedJourney
+    var selectedJourney = selector.options[selector.selectedIndex].getAttribute('journey');    
+    var hiddenBackToPath = document.getElementById('hidden-backToPath');
+    hiddenBackToPath.value = '/account/' + selectedJourney;
   }
   
   window.onload = updateServiceId
@@ -41,10 +38,9 @@
         <form method="GET" action="/login/out?backToPath=%2Faccount">
           <div class="row">
             <label for="service">Service to mimic: </label>
-            <select name="journey" id="service-selector" class="service-selector" onchange="updateServiceId()">
-                <%- include partials/serviceSelectorOptions.ejs %>
+            <select name="serviceId" id="service-selector" class="service-selector" onchange="updateServiceId()">
+                <%- include partials/serviceIdSelectorOptions.ejs %>
             </select>
-            <input type="hidden" name="serviceId" id="hidden-serviceid" value="" />
             <input type="hidden" name="backToPath" id="hidden-backToPath" value="/account" />
           </div>
           <br>

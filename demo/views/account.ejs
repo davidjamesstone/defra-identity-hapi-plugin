@@ -75,6 +75,30 @@
                     onclick="document.querySelector('pre').style.display = 'block'; return false;">Full Tokenset
                     &gt;</a></p>
             <pre style="display: none"><%- JSON.stringify(credentials, null, 2) %></pre>
+            <label>tokenSet</label>
+            <table class="govuk-table">
+                <tr><th>id_token</th><td><%= credentials.tokenSet.id_token %></td></tr>
+                <tr><th>token_type</th><td><%= credentials.tokenSet.token_type %></td></tr>
+                <tr><th>not_before</th><td><%= new Date(credentials.tokenSet.not_before*1000).toISOString() %></td></tr>
+                <tr><th>id_token_expires_in</th><td><%= credentials.tokenSet.id_token_expires_in %></td></tr>
+                <tr><th>refresh_token_expires_in</th><td><%= credentials.tokenSet.refresh_token_expires_in %></td></tr>
+            </table>
+            <label>Claims</label>
+            <table class="govuk-table">
+                <tr><th>exp</th><td></td></tr>
+                <tr><th>nbf</th><td></td></tr>
+                <tr><th>ver</th><td></td></tr>
+                <tr><th>iss</th><td></td></tr>
+                <tr><th>sub</th><td></td></tr>
+                <tr><th>aud</th><td></td></tr>
+                <tr><th>acr</th><td></td></tr>
+                <tr><th>iat</th><td></td></tr>
+                <tr><th>auth_time</th><td></td></tr>
+                <tr><th>email</th><td></td></tr>
+                <tr><th>roles</th><td></td></tr>
+                <tr><th>roleMappings</th><td></td></tr>
+                <tr><th>contactId</th><td></td></tr>
+            </table>
         </div>
         <% } %>
     </div>

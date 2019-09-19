@@ -37,6 +37,20 @@
   display: inline-block;
 }
 
+.row ul{
+  margin-left: 50px;
+}
+
+.box{
+  border: 1px solid #000;
+  padding: 10px;
+}
+
+.error{
+  color: red;
+  font-weight: bold;
+}
+
 .bigbox{
   -ms-transform: scale(1.5); /* IE */
   -moz-transform: scale(1.5); /* FF */
