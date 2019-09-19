@@ -808,8 +808,8 @@ describe('Dynamics - read', async () => {
           const { readEnrolmentRequests } = idm.dynamics
 
           const mock = {
-            contactId: 'c20e6efe-9954-4c5b-a76c-83a5518a1385',
-            serviceId: 'c20e6efe-9954-4c5b-a76c-83a5518a1386'
+            contactId: uuid(),
+            serviceId: uuid()
           }
 
           const request = await readEnrolmentRequests.buildRequest(mock.serviceId, mock.contactId, true)
@@ -824,8 +824,8 @@ describe('Dynamics - read', async () => {
           const { readEnrolmentRequests } = idm.dynamics
 
           const mock = {
-            contactId: 'c20e6efe-9954-4c5b-a76c-83a5518a1385',
-            serviceId: 'c20e6efe-9954-4c5b-a76c-83a5518a1386'
+            contactId: uuid(),
+            serviceId: uuid()
           }
 
           const request = await readEnrolmentRequests.buildRequest(mock.serviceId, mock.contactId, false)
