@@ -9,25 +9,19 @@
 
 <div class="grid-row">
     <div class="column-full">
-        <% if (parsedAuthzRoles.flat.length) { %>
-        <h3 class="heading-large">
-            You currently have the following roles:
-        </h3>
-        <pre><%= JSON.stringify(parsedAuthzRoles.flat, null, '\t') %></pre>
-        <% }else{ %>
-        <h3 class="heading-large">
-            You currently have no roles with this service
-        </h3>
-        <% } %>
 
         <h3 class="heading-large">Choose your enrolment status</h3>
 
         <form method="post">
-
             <div class="row">
-                
-                <label for="service">Service to mimic: </label>
-                <select name="journey" id="service-selector" class="service-selector">
+                <label for="accountId">Organisation:</label>
+                <select name="accountId" id="accountid" class="service-selector">
+                    <%- include partials/accountSelectorOptions.ejs %>
+                </select>
+            </div>
+            <div class="row">
+                <label for="journey">Service to impersonate: </label>
+                <select name="journey" id="journey" class="service-selector">
                     <%- include partials/serviceSelectorOptions.ejs %>
                 </select>
             </div>
@@ -46,6 +40,26 @@
                 <button class="button" type="submit">Submit</button>
             </div>
         </form>
+
+        <div class="row">
+            <% if (parsedAuthzRoles.flat.length) { %>
+            <h3 class="heading-large">
+                You currently have the following roles:
+            </h3>
+            <table class="govuk-table">
+                <tr>
+                    <th>Account name</th>
+                    <th>Role Name</th>
+                    <th>Status</th>
+                </tr>
+                <%- include partials/currentRoles.ejs %>
+            </table>
+            <% }else{ %>
+            <h3 class="heading-large">
+                You currently have no roles with this service
+            </h3>
+            <% } %>
+        </div>
     </div>
 </div>
 </main>

@@ -13,12 +13,24 @@ module.exports = [
       const { idm } = request.server.methods
       const claims = await idm.getClaims(request)
       const parsedAuthzRoles = idm.dynamics.parseAuthzRoles(claims)
-
+      const { contactId } = claims
+      // read the connections for the current contact
+      const rawConnections = await idm.dynamics.readContactsAccountLinks(contactId)
+      // read the accounts associated with the connections
+      const accountIds = rawConnections.map(conn => conn.accountId)
+      const accounts = await idm.dynamics.readAccounts(accountIds)
+      const accountNames = accounts.map((thisAccount) => {
+        return {
+          accountId: thisAccount.accountId,
+          accountName: thisAccount.accountName
+        }
+      })
       return h.view('enrolment', {
         title: 'enrolment',
         idm,
         claims,
         journey,
+        accountNames,
         serviceLookup,
         parsedAuthzRoles,
         credentials: await idm.getCredentials(request)
@@ -33,11 +45,8 @@ module.exports = [
     },
     handler: async function (request, h) {
       const { idm } = request.server.methods
-      const { enrolmentStatusId, journey } = request.payload
+      const { enrolmentStatusId, journey, accountId } = request.payload
       const newEnrolmentStatusId = Number(enrolmentStatusId)
-
-      // TODO: Get the serviceId from the session where we stashed it earlier
-      // const { serviceRoleId, identity: { serviceId } } = config
       const serviceRoleId = serviceLookup[journey].roleId
       const serviceId = serviceLookup[journey].serviceId
 
@@ -60,17 +69,24 @@ module.exports = [
         let promises = []
 
         // Create promises to create enrolments for links that we currently don't have enrolments for
-        promises = promises.concat(contactAccountLinks.map(link => {
-          const existingEnrolment = parsedAuthzRoles.rolesByOrg[link.accountId]
-
-          if (!existingEnrolment) {
-            return idm.dynamics.createEnrolment(contactId, link.connectionDetailsId, newEnrolmentStatusId, link.accountId, undefined, serviceRoleId)
-          }
-        }).filter(i => !!i))
+        // promises = promises.concat(contactAccountLinks.map(link => {
+        //   const existingEnrolment = parsedAuthzRoles.rolesByOrg[link.accountId]
+        //   if (!existingEnrolment) {
+        //     return idm.dynamics.createEnrolment(contactId, link.connectionDetailsId, newEnrolmentStatusId, link.accountId, undefined, serviceRoleId)
+        //   }
+        // }).filter(i => !!i))
 
         // Create promises to update the status of enrolments we do already have
-        promises = promises.concat(currentEnrolments.value
-          .map(currentEnrolment => idm.dynamics.updateEnrolmentStatus(currentEnrolment.defra_lobserviceuserlinkid, newEnrolmentStatusId)))
+        // promises = promises.concat(
+        //   currentEnrolments.value.map(currentEnrolment => idm.dynamics.updateEnrolmentStatus(currentEnrolment.defra_lobserviceuserlinkid, newEnrolmentStatusId))
+        // )
+
+        const thisConnection = currentEnrolments.find(conn => conn.accountId === accountId)
+        const existingEnrolment = parsedAuthzRoles.rolesByOrg[accountId]
+        if (!existingEnrolment && thisConnection) {
+          const enrolment = await idm.dynamics.createEnrolment(contactId, thisConnection.connectionDetailsId, newEnrolmentStatusId, thisConnection.accountId, undefined, serviceRoleId)
+          await idm.dynamics.updateEnrolmentStatus(enrolment.defra_lobserviceuserlinkid, newEnrolmentStatusId)
+        }
 
         // Wait for all promises to complete
         await Promise.all(promises)
@@ -79,7 +95,7 @@ module.exports = [
         await idm.refreshToken(request)
 
         // return 'Enrolment successfully updated. <a href="/enrolment">Click here to return</a>'
-        return h.redirect(`/account/${journey}`)
+        return h.redirect(`/enrolment/${journey}`)
       } catch (e) {
         console.error(e)
 

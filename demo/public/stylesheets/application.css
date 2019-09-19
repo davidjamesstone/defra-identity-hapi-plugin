@@ -32,6 +32,11 @@
   font-weight: bold;
 }
 
+.row label{
+  width: 250px;
+  display: inline-block;
+}
+
 .bigbox{
   -ms-transform: scale(1.5); /* IE */
   -moz-transform: scale(1.5); /* FF */
