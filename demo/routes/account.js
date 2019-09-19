@@ -47,11 +47,15 @@ module.exports = [
             accountName: accountNameFromId[conn.accountId],
             accountId: conn.accountId,
             enrolmentType: 'None',
-            serviceName: 'Ready to enrol',
-            status: 'None',
+            serviceName: 'None',
+            status: 'Ready to enrol',
             connectionType: 'None'
           })
         }
+      })
+      // sort the services by status and name
+      services = services.sort((a, b) => {
+        return a.status + a.accountName.toUpperCase() >= b.status + b.accountName.toUpperCase() ? 1 : -1
       })
       const identity = []
       return h.view('account', {
