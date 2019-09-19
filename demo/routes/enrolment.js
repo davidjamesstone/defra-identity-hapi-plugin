@@ -36,37 +36,17 @@ module.exports = [
 
       try {
         const claims = await idm.getClaims(request)
-        const parsedAuthzRoles = idm.dynamics.parseAuthzRoles(claims)
         const { contactId } = claims
 
-        // Get the accounts this contact is linked with
-        const contactAccountLinks = await idm.dynamics.readContactsAccountLinks(contactId)
+        // Get all unspent EnrolmentRequests
+        const enrolmentRequests = await idm.dynamics.readEnrolmentRequests(serviceId, contactId)
 
-        if (!contactAccountLinks || !contactAccountLinks.length) {
-          throw new Error(`Contact record not linked to any accounts - contactId ${contactId}`)
+        if (!enrolmentRequests.length) {
+          return 'No unspent enrolment requests. <a href="/enrolment">Click here to return</a>'
         }
 
-        // Get details of our existing enrolments for this service
-        const currentEnrolments = await idm.dynamics.readEnrolment(contactId, null, null, null, serviceId, true)
-
-        // Our array of tasks
-        let promises = []
-
-        // Create promises to create enrolments for links that we currently don't have enrolments for
-        promises = promises.concat(contactAccountLinks.map(link => {
-          const existingEnrolment = parsedAuthzRoles.rolesByOrg[link.accountId]
-
-          if (!existingEnrolment) {
-            return idm.dynamics.createEnrolment(contactId, link.connectionDetailsId, newEnrolmentStatusId, link.accountId, undefined, serviceRoleId)
-          }
-        }).filter(i => !!i))
-
-        // Create promises to update the status of enrolments we do already have
-        promises = promises.concat(currentEnrolments.value
-          .map(currentEnrolment => idm.dynamics.updateEnrolmentStatus(currentEnrolment.defra_lobserviceuserlinkid, newEnrolmentStatusId)))
-
-        // Wait for all promises to complete
-        await Promise.all(promises)
+        // Create enrolments for all our unspent EnrolmentRequests
+        await Promise.all(enrolmentRequests.map(enrolmentRequest => idm.dynamics.createEnrolment(contactId, enrolmentRequest.connectionDetailsId, newEnrolmentStatusId, enrolmentRequest.accountId, serviceId, serviceRoleId)))
 
         // Refresh our token with new roles
         await idm.refreshToken(request)
