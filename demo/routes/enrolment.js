@@ -81,11 +81,11 @@ module.exports = [
         //   currentEnrolments.value.map(currentEnrolment => idm.dynamics.updateEnrolmentStatus(currentEnrolment.defra_lobserviceuserlinkid, newEnrolmentStatusId))
         // )
 
-        const thisConnection = currentEnrolments.find(conn => conn.accountId === accountId)
+        const thisConnection = currentEnrolments.value.find(conn => conn.accountId === accountId)
         const existingEnrolment = parsedAuthzRoles.rolesByOrg[accountId]
         if (!existingEnrolment && thisConnection) {
-          const enrolment = await idm.dynamics.createEnrolment(contactId, thisConnection.connectionDetailsId, newEnrolmentStatusId, thisConnection.accountId, undefined, serviceRoleId)
-          await idm.dynamics.updateEnrolmentStatus(enrolment.defra_lobserviceuserlinkid, newEnrolmentStatusId)
+          await idm.dynamics.createEnrolment(contactId, thisConnection.connectionDetailsId, newEnrolmentStatusId, thisConnection.accountId, undefined, serviceRoleId)
+          await idm.dynamics.updateEnrolmentStatus(thisConnection.defra_lobserviceuserlinkid, newEnrolmentStatusId)
         }
 
         // Wait for all promises to complete
