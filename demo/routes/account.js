@@ -40,6 +40,7 @@ module.exports = [
       rawConnections.forEach((conn) => {
         const found = enrolments.find((e) => e.accountId === conn.accountId)
         if (found) {
+          // Add the connection type
           found.connectionType = connectionRoleIds[conn.roleId]
           services.push(found)
         } else {
@@ -53,7 +54,7 @@ module.exports = [
           })
         }
       })
-      // sort the services by status and name
+      // sort the services by status and name (we want active services at the top)
       services = services.sort((a, b) => {
         return a.status + a.accountName.toUpperCase() >= b.status + b.accountName.toUpperCase() ? 1 : -1
       })
@@ -66,6 +67,7 @@ module.exports = [
         journey,
         services,
         identity,
+        serviceLookup,
         claims: await idm.getClaims(request),
         credentials: await idm.getCredentials(request),
         trulyPrivate: false

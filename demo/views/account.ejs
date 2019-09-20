@@ -1,9 +1,26 @@
 <% include ./layout/top.ejs %>
-
+<script>
+function toggle(element) {
+  if (element.style.display === 'none') {
+      element.style.display = 'block';
+  } else {
+      element.style.display = 'none';
+  }
+}
+function switchService(element) {
+  var service = element.options[element.selectedIndex].value;
+  var path = window.location.href.split('/');
+  path.splice(path.length - 1, 1);
+  path = path.join('/') + '/' + service;
+  const redirect = document.getElementById('redirect')
+  redirect.href=path;
+  redirect.click();
+}
+</script>
+<a id="redirect" href="" style="display:none">Redirect</a>
 <div class="breadcrumbs breadcrumb-two-thirds">
     <ol>
-        <li><a href="/account/<%= journeyName %>">Home</a></li>
-        <li>Defra service</li>
+        <li>Home</li>
     </ol>
 </div>
 
@@ -21,8 +38,7 @@
             </p>
 
             <ul class="error-summary-list">
-                <li><a href="<%= idm.generateAuthenticationUrl('/account') %>">Click here to log in or create an
-                        account</a>
+                <li><a href="<%= idm.generateAuthenticationUrl('/account') %>">Click here to log in or create an account</a>
                 </li>
             </ul>
 
@@ -37,10 +53,10 @@
         </div>
         <% } %>
         <% } else { %>
-        <h1 class="heading-xlarge2">Welcome to <%= journeyName %>!</h1>
-        <h3 class="heading-large">You're logged in!</h3>
+        <h1 class="heading-xlarge2">Welcome to <% if (journeyName.indexOf('Service') > -1){%>the<%} %> <%= journeyName %>!</h1>
+        <br>
         <div class="row rowblock">
-            <h3>Service: (in <%= journeyName %>)</h3>
+            <h3>Enrolment status: (in <%= journeyName %>)</h3>
             <table class="govuk-table">
                 <tr>
                     <th>Organisation</th>
@@ -65,40 +81,53 @@
         </div>
         -->
         <div class="row">
-            <p class="govuk-body">
-                <a href="/enrolment/<%= journey %>">Click here to go to enrolment</a>
-            </p>
-        </div>
-
-        <div class="row">
-            <p class="govuk-body"><a href="#"
-                    onclick="document.querySelector('pre').style.display = 'block'; return false;">Full Tokenset
-                    &gt;</a></p>
-            <pre style="display: none"><%- JSON.stringify(credentials, null, 2) %></pre>
-            <label>tokenSet</label>
             <table class="govuk-table">
-                <tr><th>id_token</th><td><%= credentials.tokenSet.id_token %></td></tr>
+            <tr>
+                <td ><a href="/enrolment/<%= journey %>" class="button">Manage enrolments</a></p></td>
+                <td class="right">
+                    <label for="service-switch">Switch service:</label>
+                    <select id="service-switch" onchange="switchService(document.getElementById('service-switch'))" class="service-selector">
+                    <%- include partials/journeySelectorOptions.ejs %>
+                    </select>
+                </td>
+            </tr>
+            </table>
+
+        </div>
+        <br><br><br>
+        <div class="row">
+            <label>tokenSet:</label>
+            <table class="govuk-table">
+                <tr style="vertical-align: top"><th>id_token</th><td style="word-break: break-all"><%= credentials.tokenSet.id_token %></td></tr>
                 <tr><th>token_type</th><td><%= credentials.tokenSet.token_type %></td></tr>
                 <tr><th>not_before</th><td><%= new Date(credentials.tokenSet.not_before*1000).toISOString() %></td></tr>
                 <tr><th>id_token_expires_in</th><td><%= credentials.tokenSet.id_token_expires_in %></td></tr>
                 <tr><th>refresh_token_expires_in</th><td><%= credentials.tokenSet.refresh_token_expires_in %></td></tr>
             </table>
-            <label>Claims</label>
+        </div>
+        <br>
+        <div class="row">
+            <label>Claims:</label>
             <table class="govuk-table">
-                <tr><th>exp</th><td></td></tr>
-                <tr><th>nbf</th><td></td></tr>
-                <tr><th>ver</th><td></td></tr>
-                <tr><th>iss</th><td></td></tr>
-                <tr><th>sub</th><td></td></tr>
-                <tr><th>aud</th><td></td></tr>
-                <tr><th>acr</th><td></td></tr>
-                <tr><th>iat</th><td></td></tr>
-                <tr><th>auth_time</th><td></td></tr>
-                <tr><th>email</th><td></td></tr>
-                <tr><th>roles</th><td></td></tr>
-                <tr><th>roleMappings</th><td></td></tr>
-                <tr><th>contactId</th><td></td></tr>
+                <tr><th>exp</th><td><%= new Date(credentials.claims.exp * 1000).toISOString() %></td></tr>
+                <tr><th>nbf</th><td><%= new Date(credentials.claims.nbf * 1000).toISOString() %></td></tr>
+                <tr><th>ver</th><td><%= credentials.claims.ver %></td></tr>
+                <tr><th>iss</th><td><%= credentials.claims.iss %></td></tr>
+                <tr><th>sub</th><td><%= credentials.claims.sub %></td></tr>
+                <tr><th>aud</th><td><%= credentials.claims.aud %></td></tr>
+                <tr><th>acr</th><td><%= credentials.claims.acr %></td></tr>
+                <tr><th>iat</th><td><%= new Date(credentials.claims.iat * 1000).toISOString() %></td></tr>
+                <tr><th>auth_time</th><td><%= new Date(credentials.claims.auth_time * 1000).toISOString() %></td></tr>
+                <tr><th>email</th><td><%= credentials.claims.email %></td></tr>
+                <tr><th>roles</th><td><%= credentials.claims.roles %></td></tr>
+                <tr><th>roleMappings</th><td><%= credentials.claims.roleMappings %></td></tr>
+                <tr><th>contactId</th><td><%= credentials.claims.contactId %></td></tr>
             </table>
+        </div>
+        <div class="row">
+            <p class="govuk-body">
+            <a name="rawtoken" href="#rawtoken" onclick="toggle(document.querySelector('pre')); return false;">Raw Tokenset &gt;</a></p>
+            <pre style="display: none"><%- JSON.stringify(credentials, null, 2) %></pre>
         </div>
         <% } %>
     </div>

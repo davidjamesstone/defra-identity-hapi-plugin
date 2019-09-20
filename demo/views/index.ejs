@@ -3,11 +3,11 @@
 <script>
   function updateServiceId() {
     var selector = document.getElementById('service-selector');
-    var selectedJourney = selector.options[selector.selectedIndex].getAttribute('journey');    
+    var selectedJourney = selector.options[selector.selectedIndex].getAttribute('journey');
     var hiddenBackToPath = document.getElementById('hidden-backToPath');
     hiddenBackToPath.value = '/account/' + selectedJourney;
   }
-  
+
   window.onload = updateServiceId
 </script>
 
@@ -27,7 +27,7 @@
     <div>
       <section class="intro">
 
-        <p>This is a demo service to allow testers and developers to impersonate a specific consuming services.</p>
+        <p>This is a demo service to allow testers and developers to impersonate a specific consuming service.</p>
 
         This service can be used to:
         <ul class="list-bullet">
@@ -37,7 +37,7 @@
         <br>
         <form method="GET" action="/login/out?backToPath=%2Faccount">
           <div class="row">
-            <label for="service">Service to mimic: </label>
+            <label for="service">Service to impersonate: </label>
             <select name="serviceId" id="service-selector" class="service-selector" onchange="updateServiceId()">
                 <%- include partials/serviceIdSelectorOptions.ejs %>
             </select>
