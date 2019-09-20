@@ -95,7 +95,7 @@ async function start () {
     }
   }
 
-  let {
+  const {
     app: {
       domain: appDomain
     },
