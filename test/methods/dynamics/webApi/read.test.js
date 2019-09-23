@@ -867,10 +867,10 @@ describe('Dynamics - read', async () => {
 
       it('should return an array of EnrolmentRequest objects', () => {
         expect(outcome[0].enrolmentRequestId).to.equal(mock.response.body.value[0].defra_lobserviceuserlinkrequestid)
-        expect(outcome[0].serviceId).to.equal(mock.response.body.value[0].defra_service)
-        expect(outcome[0].accountId).to.equal(mock.response.body.value[0].defra_organisation)
-        expect(outcome[0].contactId).to.equal(mock.response.body.value[0].defra_serviceuser)
-        expect(outcome[0].connectionDetailsId).to.equal(mock.response.body.value[0].defra_connectiondetail)
+        expect(outcome[0].serviceId).to.equal(mock.response.body.value[0]._defra_service_value)
+        expect(outcome[0].accountId).to.equal(mock.response.body.value[0]._defra_organisation_value)
+        expect(outcome[0].contactId).to.equal(mock.response.body.value[0]._defra_serviceuser_value)
+        expect(outcome[0].connectionDetailsId).to.equal(mock.response.body.value[0]._defra_connectiondetail_value)
         expect(outcome[0].status).to.equal(mock.response.body.value[0].statuscode)
         expect(outcome[0].state).to.equal(mock.response.body.value[0].statecode)
       })
