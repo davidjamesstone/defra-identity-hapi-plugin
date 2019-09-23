@@ -815,7 +815,7 @@ describe('Dynamics - read', async () => {
           const request = await readEnrolmentRequests.buildRequest(mock.serviceId, mock.contactId, true)
 
           expect(request.method).to.equal('GET')
-          expect(request.url).to.equal(`${dynamicsRoot}/defra_lobserviceuserlinkrequests?%24filter=defra_service%20eq%20${mock.serviceId}%20and%20defra_serviceuser%20eq%20${mock.contactId}%20and%20statuscode%20eq%201`)
+          expect(request.url).to.equal(`${dynamicsRoot}/defra_lobserviceuserlinkrequests?%24filter=_defra_service_value%20eq%20${mock.serviceId}%20and%20_defra_serviceuser_value%20eq%20${mock.contactId}%20and%20statuscode%20eq%201`)
         })
       })
 
@@ -831,7 +831,7 @@ describe('Dynamics - read', async () => {
           const request = await readEnrolmentRequests.buildRequest(mock.serviceId, mock.contactId, false)
 
           expect(request.method).to.equal('GET')
-          expect(request.url).to.equal(`${dynamicsRoot}/defra_lobserviceuserlinkrequests?%24filter=defra_service%20eq%20${mock.serviceId}%20and%20defra_serviceuser%20eq%20${mock.contactId}`)
+          expect(request.url).to.equal(`${dynamicsRoot}/defra_lobserviceuserlinkrequests?%24filter=_defra_service_value%20eq%20${mock.serviceId}%20and%20_defra_serviceuser_value%20eq%20${mock.contactId}`)
         })
       })
     })
