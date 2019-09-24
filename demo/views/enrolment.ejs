@@ -9,7 +9,7 @@
 
 <div class="grid-row">
     <div class="column-full">
-        <% if (errorMessage) { %>
+        <% if (errorMessage) { %> 
             <%- include partials/errorBox.ejs %>
         <% } %>
         <h3 class="heading-large">Choose your enrolment status</h3>
@@ -41,11 +41,18 @@
                 </select>
             </div>
             <br>
-            <hr>
             <div class="row">
                 <button class="button" type="submit">Submit</button>
             </div>
+            <br>
+            <hr>
         </form>
+
+        <% if (enrolmentRequests === 0) { %>
+            <div class="row">There are no unspent enrolmentRequests</div>
+        <% } else { %>
+            <div class="row">There are <%=enrolmentRequests%> unspent enrolmentRequests</div>
+        <% } %>
 
         <div class="row">
             <% if (parsedAuthzRoles.flat.length) { %>
