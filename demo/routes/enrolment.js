@@ -31,14 +31,11 @@ module.exports = [
       const claims = await idm.getClaims(request)
       const parsedAuthzRoles = idm.dynamics.parseAuthzRoles(claims)
       const { contactId } = claims || request.params
-      // read the connections for the current contact
-      // const rawConnections = await idm.dynamics.readContactsAccountLinks(contactId)
-
-      // Get all unspent EnrolmentRequests
       const enrolmentRequests = await idm.dynamics.readEnrolmentRequests(serviceId, contactId)
 
       if (!enrolmentRequests.length) {
         return 'No unspent enrolment requests. <a href="/enrolment">Click here to return</a>'
+        // return h.redirect('/enrolment')
       }
 
       // read the accounts associated with the connections
@@ -80,7 +77,6 @@ module.exports = [
 
       try {
         const claims = await idm.getClaims(request)
-        const parsedAuthzRoles = idm.dynamics.parseAuthzRoles(claims)
         const { contactId } = claims
 
         // Get the accounts this contact is linked with
@@ -90,9 +86,10 @@ module.exports = [
         const enrolmentRequests = await idm.dynamics.readEnrolmentRequests(serviceId, contactId)
 
         if (!enrolmentRequests || !enrolmentRequests.length) {
-          throw new Error(`Contact record not linked to any accounts - contactId ${contactId}`)
+          throw new Error(`No unspent enrolment requests - contactId ${contactId}`)
         }
 
+        const parsedAuthzRoles = idm.dynamics.parseAuthzRoles(claims)
         const thisLink = enrolmentRequests.find(conn => conn.accountId === accountId)
         const existingEnrolment = parsedAuthzRoles.rolesByOrg[accountId]
 
@@ -107,7 +104,6 @@ module.exports = [
         return h.redirect(`/enrolment/${journey}`)
       } catch (e) {
         console.error(e)
-
         return `Uh oh. Error: ${e}`
       }
     }
