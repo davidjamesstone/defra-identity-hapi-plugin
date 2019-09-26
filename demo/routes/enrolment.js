@@ -31,8 +31,9 @@ module.exports = [
       const claims = await idm.getClaims(request)
       const parsedAuthzRoles = idm.dynamics.parseAuthzRoles(claims)
       const { contactId } = claims || request.params
-      const enrolmentRequests = await idm.dynamics.readContactsAccountLinks(contactId) // This will change to the line below when implemented by customer
-      // const enrolmentRequests = await idm.dynamics.readEnrolmentRequests(serviceId, contactId)
+
+      // Get all unspent EnrolmentRequests
+      const enrolmentRequests = await idm.dynamics.readEnrolmentRequests(serviceId, contactId)
 
       // read the accounts associated with the connections
       const accountIds = enrolmentRequests.map(conn => conn.accountId)
@@ -76,10 +77,8 @@ module.exports = [
         const claims = await idm.getClaims(request)
         const { contactId } = claims
 
-        // Get the accounts this contact is linked with
-        const enrolmentRequests = await idm.dynamics.readContactsAccountLinks(contactId)// This will change to the line below when implemented by customer
         // Get all unspent EnrolmentRequests
-        // const enrolmentRequests = await idm.dynamics.readEnrolmentRequests(serviceId, contactId)
+        const enrolmentRequests = await idm.dynamics.readEnrolmentRequests(serviceId, contactId)
 
         if (!enrolmentRequests || !enrolmentRequests.length) {
           throw new Error(`No unspent enrolment requests - contactId ${contactId}`)
