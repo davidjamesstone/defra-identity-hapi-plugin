@@ -37,13 +37,16 @@ module.exports = [
 
       // read the accounts associated with the connections
       const accountIds = enrolmentRequests.map(conn => conn.accountId)
-      const accounts = await idm.dynamics.readAccounts(accountIds)
-      const accountNames = accounts.map((thisAccount) => {
-        return {
-          accountId: thisAccount.accountId,
-          accountName: thisAccount.accountName
-        }
-      })
+      let accountNames = []
+      if (accountIds && accountIds.length) {
+        const accounts = await idm.dynamics.readAccounts(accountIds)
+        accountNames = accounts.map((thisAccount) => {
+          return {
+            accountId: thisAccount.accountId,
+            accountName: thisAccount.accountName
+          }
+        })
+      }
       return h.view('enrolment', {
         title: 'enrolment',
         idm,
