@@ -37,7 +37,7 @@ module.exports = [
 
       // read the accounts associated with the connections
       const accountIds = enrolmentRequests.map(conn => conn.accountId)
-      let accountNames = []
+      let accountNames = [{accountId: contactId, accountName: 'Citizen'}]
       if (accountIds && accountIds.length) {
         const accounts = await idm.dynamics.readAccounts(accountIds)
         accountNames = accounts.map((thisAccount) => {
@@ -87,6 +87,7 @@ module.exports = [
           throw new Error(`No unspent enrolment requests - contactId ${contactId}`)
         }
 
+        // TODO: how do we handle a citizen ??
         const parsedAuthzRoles = idm.dynamics.parseAuthzRoles(claims)
         const thisLink = enrolmentRequests.find(conn => conn.accountId === accountId)
         const existingEnrolment = parsedAuthzRoles.rolesByOrg[accountId]
