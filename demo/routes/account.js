@@ -56,7 +56,7 @@ module.exports = [
       })
       // sort the services by status and name (we want active services at the top)
       services.sort((a, b) => {
-        return a.status + (a.accountName + '').toUpperCase() >= b.status + (b.accountName + '').tƒoUpperCase() ? 1 : -1
+        return a.status + (a.accountName + '').toUpperCase() >= b.status + (b.accountName + '').toUpperCase() ? 1 : -1
       })
       const identity = []
       return h.view('account', {
