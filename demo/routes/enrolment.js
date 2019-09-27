@@ -1,6 +1,22 @@
 // const config = require('../config')
 const serviceLookup = require('../lib/services')
 
+/**
+ * filter the available services to only those for which there is an enrolment request
+ * @param {Object} list
+ * @param {Array<EnrolmentRequest} requests
+ */
+const filterServiceLookup = (list, requests) => {
+  const allowedServices = requests.map(r => r.serviceId)
+  const result = {}
+  Object.keys(list).forEach((key) => {
+    if (allowedServices.includes(list[key].serviceId)) {
+      result[key] = list[key]
+    }
+  })
+  return result
+}
+
 module.exports = [
   {
     method: 'GET',
@@ -37,16 +53,21 @@ module.exports = [
 
       // read the accounts associated with the connections
       const accountIds = enrolmentRequests.map(conn => conn.accountId)
-      let accountNames = [{accountId: contactId, accountName: 'Citizen'}]
+      let accountNames = []
+      const noConnectionDetails = { connectionDetailsId: null }
       if (accountIds && accountIds.length) {
         const accounts = await idm.dynamics.readAccounts(accountIds)
         accountNames = accounts.map((thisAccount) => {
           return {
             accountId: thisAccount.accountId,
-            accountName: thisAccount.accountName
+            accountName: thisAccount.accountName,
+            request: enrolmentRequests.find(r => r.accountId === thisAccount.accountId) || noConnectionDetails // pass the request to allow the connectionDetailsId to be used as the drop-down value
           }
         })
       }
+      accountNames.push({ accountId: 'citizen', accountName: 'Citizen', request: enrolmentRequests.find(r => r.accountId === null) || noConnectionDetails })
+      // filter the serviceLookup list to only show services you're allowed (ie there's an enrolmentRequest for it)
+      const services = filterServiceLookup(serviceLookup, enrolmentRequests)
       return h.view('enrolment', {
         title: 'enrolment',
         idm,
@@ -57,7 +78,7 @@ module.exports = [
         serviceName: serviceLookup[journey].serviceName,
         contactId,
         accountNames,
-        serviceLookup,
+        serviceLookup: services,
         parsedAuthzRoles,
         credentials: await idm.getCredentials(request)
       })
@@ -71,7 +92,7 @@ module.exports = [
     },
     handler: async function (request, h) {
       const { idm } = request.server.methods
-      const { enrolmentStatusId, journey, accountId } = request.payload
+      const { enrolmentStatusId, journey, connectionDetailsId } = request.payload
       const newEnrolmentStatusId = Number(enrolmentStatusId)
       const serviceRoleId = serviceLookup[journey].roleId
       const serviceId = serviceLookup[journey].serviceId
@@ -87,14 +108,10 @@ module.exports = [
           throw new Error(`No unspent enrolment requests - contactId ${contactId}`)
         }
 
-        // TODO: how do we handle a citizen ??
-        const parsedAuthzRoles = idm.dynamics.parseAuthzRoles(claims)
-        const thisLink = enrolmentRequests.find(conn => conn.accountId === accountId)
-        const existingEnrolment = parsedAuthzRoles.rolesByOrg[accountId]
-
         // Create an enrolment for this user/organisation/service combination
-        if (!existingEnrolment && thisLink) {
-          await idm.dynamics.createEnrolment(contactId, thisLink.connectionDetailsId, newEnrolmentStatusId, accountId, undefined, serviceRoleId)
+        const matchedRequest = enrolmentRequests.find(r => r.connectionDetailsId === connectionDetailsId) || {}
+        if (connectionDetailsId) {
+          await idm.dynamics.createEnrolment(contactId, connectionDetailsId, newEnrolmentStatusId, matchedRequest.accountId, undefined, serviceRoleId)
         }
         // Refresh our token with new roles and set the plugin serviceId
         let config = idm.getConfig()

@@ -12,7 +12,7 @@ module.exports = [
       const { journey } = request.params
       const { idm } = request.server.methods
       const claims = await idm.getClaims(request)
-      const { contactId } = claims
+      const { contactId } = claims || { contactId: 'unknown' }
       const serviceId = serviceLookup[journey].serviceId
 
       // read the connections for the current contact
@@ -35,6 +35,7 @@ module.exports = [
       const accountIds = rawConnections.map(conn => conn.accountId)
       const accounts = await idm.dynamics.readAccounts(accountIds)
       const accountNameFromId = accounts.reduce((acc, a) => ({ ...acc, [a.accountId]: a.accountName }), {})
+      Object.assign(accountNameFromId, { null: 'Citizen' })
       let services = []
       // create data structures for the view inluding placeholder rows for accounts for which we don't have an enrolment
       rawConnections.forEach((conn) => {
@@ -42,6 +43,9 @@ module.exports = [
         if (found) {
           // Add the connection type
           found.connectionType = connectionRoleIds[conn.roleId]
+          if (found.connectionType.indexOf('Citizen') > -1) {
+            found.accountName = 'Citizen'
+          }
           services.push(found)
         } else {
           services.push({

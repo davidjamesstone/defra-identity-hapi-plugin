@@ -20,8 +20,8 @@
                 <input type="text" disabled="disabled" value="<%= contactId %>" class="service-selector" />
             </div>
             <div class="row">
-                <label for="accountId">Organisation:</label>
-                <select name="accountId" id="accountid" class="service-selector">
+                <label for="connectionDetailsId">Organisation:</label>
+                <select name="connectionDetailsId" id="connectionDetailsId" class="service-selector">
                     <%- include partials/accountSelectorOptions.ejs %>
                 </select>
             </div>
@@ -42,7 +42,7 @@
             </div>
             <br>
             <div class="row">
-                <button class="button" type="submit">Submit</button>
+                <button class="button" type="submit" <% if (enrolmentRequests === 0) { %> disabled="disabled"<% } %>)>Submit</button>
             </div>
         </form>
         <hr>
