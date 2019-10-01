@@ -364,6 +364,9 @@ All server methods, with jsdocs can be found in [lib/methods](lib/methods)
 
 #### Read
 
+##### `idm.dynamics.readAccounts`
+- This will return an array of accounts (organisations) from an array of accountId
+
 ##### `idm.dynamics.readCompanyNumbers`
 - This will return the companies house id for the organisation id you pass it
 

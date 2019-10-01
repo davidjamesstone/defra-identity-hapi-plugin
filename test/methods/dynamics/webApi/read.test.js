@@ -4,9 +4,10 @@ require('dotenv').config({ path: path.join(__dirname, '..', '..', '..', 'demo', 
 
 const Lab = require('lab')
 const Code = require('code')
+const uuid = require('uuid/v4')
 const lab = exports.lab = Lab.script()
 
-const { describe, it } = lab
+const { describe, it, beforeEach } = lab
 const { expect } = Code
 
 const Server = require('../../../server')
@@ -27,17 +28,37 @@ describe('Dynamics - read', async () => {
     dynamicsRoot = idmConfig.dynamics.resourceUrl + idmConfig.dynamics.endpointBase
   })
 
+  describe('Read Accounts', async () => {
+    it('should build the correct read accounts request', async () => {
+      const { readAccounts, getToken } = idm.dynamics
+      const token = await getToken()
+      const request = await readAccounts.buildRequest(['456', '567'])
+      const expectedRequestObj = {
+        method: 'GET',
+        url: 'https://defra-custmstr-idev.api.crm4.dynamics.com/api/data/v9.0/accounts?%24filter=%20(%20accountid%20eq%20456%20or%20accountid%20eq%20567%20)%20',
+        headers:
+        {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+          'Cache-Control': 'no-cache',
+          'Content-Type': 'application/json; charset=utf-8',
+          'OData-MaxVersion': '4.0',
+          'OData-Version': '4.0',
+          Prefer: 'odata.maxpagesize=500, odata.include-annotations="*"'
+        }
+      }
+      expect(request).to.equal(expectedRequestObj)
+    })
+  })
+
   describe('Read contact', async () => {
     it('should build correct read contact request using email', async () => {
       const { readContacts, getToken } = idm.dynamics
-
       const token = await getToken()
-
       const request = await readContacts.buildRequest({
         email: 'cheese@biscuits',
         b2cObjectId: 'c20e6efe-9954-4c5b-a76c-83a5518a1385'
       })
-
       const expectedRequestObj = {
         'method': 'GET',
         'url': `${dynamicsRoot}/contacts?%24filter=emailaddress1%20eq%20'cheese%40biscuits'`,
@@ -51,7 +72,6 @@ describe('Dynamics - read', async () => {
           'Prefer': 'odata.maxpagesize=500, odata.include-annotations="*"'
         }
       }
-
       expect(request).to.equal(expectedRequestObj)
     })
 
@@ -393,15 +413,15 @@ describe('Dynamics - read', async () => {
         method: 'GET',
         url: `${dynamicsRoot}/connections?%24filter=_record1id_value%20eq%20c20e6efe-9954-4c5b-a76c-83a5518a1385%20and%20(%20_record1roleid_value%20eq%20c20e6efe-9954-4c5b-a76c-83a5518a1387%20)%20%20and%20(%20_record2id_value%20eq%20c20e6efe-9954-4c5b-a76c-83a5518a1386%20)%20`,
         headers:
-          {
-            Authorization: `Bearer ${token}`,
-            Accept: 'application/json',
-            'Cache-Control': 'no-cache',
-            'Content-Type': 'application/json; charset=utf-8',
-            'OData-MaxVersion': '4.0',
-            'OData-Version': '4.0',
-            Prefer: 'odata.maxpagesize=500, odata.include-annotations="*"'
-          }
+        {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+          'Cache-Control': 'no-cache',
+          'Content-Type': 'application/json; charset=utf-8',
+          'OData-MaxVersion': '4.0',
+          'OData-Version': '4.0',
+          Prefer: 'odata.maxpagesize=500, odata.include-annotations="*"'
+        }
       }
 
       expect(request).to.equal(expectedRequest)
@@ -797,6 +817,82 @@ describe('Dynamics - read', async () => {
       const parsedResponse = await readServiceEnrolment.parseResponse(apiResponse)
 
       expect(parsedResponse).to.equal(expectedParsedResponse)
+    })
+  })
+
+  describe('Read enrolment requests', async () => {
+    describe('buildRequest', () => {
+      describe(`when 'onlyUnspent' is set to true`, () => {
+        it('should build correct request including filter of spent enrolment requests', async () => {
+          const { readEnrolmentRequests } = idm.dynamics
+
+          const mock = {
+            contactId: uuid(),
+            serviceId: uuid()
+          }
+
+          const request = await readEnrolmentRequests.buildRequest(mock.serviceId, mock.contactId, true)
+
+          expect(request.method).to.equal('GET')
+          expect(request.url).to.equal(`${dynamicsRoot}/defra_lobserviceuserlinkrequests?%24filter=_defra_service_value%20eq%20${mock.serviceId}%20and%20_defra_serviceuser_value%20eq%20${mock.contactId}%20and%20statuscode%20eq%201`)
+        })
+      })
+
+      describe(`when 'onlyUnspent' is set to false`, () => {
+        it('should build correct request excluding filter of spent enrolment requests', async () => {
+          const { readEnrolmentRequests } = idm.dynamics
+
+          const mock = {
+            contactId: uuid(),
+            serviceId: uuid()
+          }
+
+          const request = await readEnrolmentRequests.buildRequest(mock.serviceId, mock.contactId, false)
+
+          expect(request.method).to.equal('GET')
+          expect(request.url).to.equal(`${dynamicsRoot}/defra_lobserviceuserlinkrequests?%24filter=_defra_service_value%20eq%20${mock.serviceId}%20and%20_defra_serviceuser_value%20eq%20${mock.contactId}`)
+        })
+      })
+    })
+
+    describe('parseResponse', () => {
+      let outcome
+      let mock
+
+      beforeEach(() => {
+        const { readEnrolmentRequests } = idm.dynamics
+
+        mock = {
+          response: {
+            statusCode: 200,
+            body: {
+              value: [
+                {
+                  defra_lobserviceuserlinkrequestid: uuid(),
+                  defra_service: uuid(),
+                  defra_organisation: uuid(),
+                  defra_serviceuser: uuid(),
+                  defra_connectiondetail: uuid(),
+                  statuscode: 2,
+                  statecode: 0
+                }
+              ]
+            }
+          }
+        }
+
+        outcome = readEnrolmentRequests.parseResponse(mock.response)
+      })
+
+      it('should return an array of EnrolmentRequest objects', () => {
+        expect(outcome[0].enrolmentRequestId).to.equal(mock.response.body.value[0].defra_lobserviceuserlinkrequestid)
+        expect(outcome[0].serviceId).to.equal(mock.response.body.value[0]._defra_service_value)
+        expect(outcome[0].accountId).to.equal(mock.response.body.value[0]._defra_organisation_value)
+        expect(outcome[0].contactId).to.equal(mock.response.body.value[0]._defra_serviceuser_value)
+        expect(outcome[0].connectionDetailsId).to.equal(mock.response.body.value[0]._defra_connectiondetail_value)
+        expect(outcome[0].status).to.equal(mock.response.body.value[0].statuscode)
+        expect(outcome[0].state).to.equal(mock.response.body.value[0].statecode)
+      })
     })
   })
 })

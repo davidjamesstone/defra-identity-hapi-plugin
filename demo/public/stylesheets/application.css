@@ -5,6 +5,66 @@
   clear: both;
 }
 
+.service-selector {
+  width: 300px;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 0;
+  font-size: 1em;
+}
+
+.row{
+  width: 100%;
+  margin: 10px 0px;
+}
+
+.rowblock{
+  padding: 5px;
+  background-color: #f5f5f5;
+}
+
+.row h3{
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.row th{
+  font-weight: bold;
+}
+
+.row label{
+  width: 250px;
+  display: inline-block;
+}
+
+.row ul{
+  margin-left: 50px;
+}
+
+.right{
+  text-align: right;
+}
+
+.box{
+  border: 1px solid #000;
+  padding: 10px;
+}
+
+.error{
+  color: red;
+  font-weight: bold;
+}
+
+.bigbox{
+  -ms-transform: scale(1.5); /* IE */
+  -moz-transform: scale(1.5); /* FF */
+  -webkit-transform: scale(1.5); /* Safari and Chrome */
+  -o-transform: scale(1.5); /* Opera */
+  transform: scale(1.5);
+}
+
+
+
 #content {
   max-width: 960px;
   margin: 0 15px;

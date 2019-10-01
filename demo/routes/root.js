@@ -1,3 +1,4 @@
+const serviceLookup = require('../lib/services')
 module.exports = [
   {
     method: 'GET',
@@ -12,6 +13,8 @@ module.exports = [
         title: 'home',
         user: null,
         idm,
+        journey: 'chemicals',
+        serviceLookup,
         claims: await idm.getClaims(request)
       })
     }

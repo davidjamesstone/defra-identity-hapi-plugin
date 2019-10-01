@@ -1,22 +1,84 @@
-const config = require('../config')
+// const config = require('../config')
+const serviceLookup = require('../lib/services')
+
+/**
+ * filter the available services to only those for which there is an enrolment request
+ * @param {Object} list
+ * @param {Array<EnrolmentRequest} requests
+ */
+const filterServiceLookup = (list, requests) => {
+  const allowedServices = requests.map(r => r.serviceId)
+  const result = {}
+  Object.keys(list).forEach((key) => {
+    if (allowedServices.includes(list[key].serviceId)) {
+      result[key] = list[key]
+    }
+  })
+  return result
+}
 
 module.exports = [
   {
     method: 'GET',
-    path: '/enrolment',
+    path: '/enrolment/{journey}',
     options: {
       auth: 'idm'
     },
     handler: async function (request, h) {
+      const { journey } = request.params
+      const errorMessage = !serviceLookup.hasOwnProperty(journey) ? 'Invalid Journey Type!' : undefined
+      if (errorMessage) {
+        return h.view('enrolment', {
+          title: 'enrolment',
+          contactId: '',
+          journey,
+          errorMessage,
+          serviceName: '',
+          serviceLookup,
+          accountNames: [],
+          parsedAuthzRoles: { flat: () => ([]) }
+        })
+      }
       const { idm } = request.server.methods
-
+      const serviceId = serviceLookup[journey].serviceId
+      let config = idm.getConfig()
+      config.serviceId = serviceId
+      await idm.refreshToken(request) // ensure we read the latest changes so the view reflects the database
       const claims = await idm.getClaims(request)
       const parsedAuthzRoles = idm.dynamics.parseAuthzRoles(claims)
+      const { contactId } = claims || request.params
 
+      // Get all unspent EnrolmentRequests
+      const enrolmentRequests = await idm.dynamics.readEnrolmentRequests(serviceId, contactId)
+
+      // read the accounts associated with the connections
+      const accountIds = enrolmentRequests.map(conn => conn.accountId)
+      let accountNames = []
+      const noConnectionDetails = { connectionDetailsId: null }
+      if (accountIds && accountIds.length) {
+        const accounts = await idm.dynamics.readAccounts(accountIds)
+        accountNames = accounts.map((thisAccount) => {
+          return {
+            accountId: thisAccount.accountId,
+            accountName: thisAccount.accountName,
+            request: enrolmentRequests.find(r => r.accountId === thisAccount.accountId) || noConnectionDetails // pass the request to allow the connectionDetailsId to be used as the drop-down value
+          }
+        })
+      }
+      accountNames.push({ accountId: 'citizen', accountName: 'Citizen', request: enrolmentRequests.find(r => r.accountId === null) || noConnectionDetails })
+      // filter the serviceLookup list to only show services you're allowed (ie there's an enrolmentRequest for it)
+      const services = filterServiceLookup(serviceLookup, enrolmentRequests)
       return h.view('enrolment', {
         title: 'enrolment',
         idm,
         claims,
+        journey,
+        errorMessage,
+        enrolmentRequests: enrolmentRequests.length,
+        serviceName: serviceLookup[journey].serviceName,
+        contactId,
+        accountNames,
+        serviceLookup: services,
         parsedAuthzRoles,
         credentials: await idm.getCredentials(request)
       })
@@ -24,57 +86,40 @@ module.exports = [
   },
   {
     method: 'POST',
-    path: '/enrolment',
+    path: '/enrolment/{journey}',
     options: {
       auth: 'idm'
     },
-    handler: async function (request) {
+    handler: async function (request, h) {
       const { idm } = request.server.methods
-      const { enrolmentStatusId } = request.payload
+      const { enrolmentStatusId, journey, connectionDetailsId } = request.payload
       const newEnrolmentStatusId = Number(enrolmentStatusId)
-      const { serviceRoleId, identity: { serviceId } } = config
+      const serviceRoleId = serviceLookup[journey].roleId
+      const serviceId = serviceLookup[journey].serviceId
 
       try {
         const claims = await idm.getClaims(request)
-        const parsedAuthzRoles = idm.dynamics.parseAuthzRoles(claims)
         const { contactId } = claims
 
-        // Get the accounts this contact is linked with
-        const contactAccountLinks = await idm.dynamics.readContactsAccountLinks(contactId)
+        // Get all unspent EnrolmentRequests
+        const enrolmentRequests = await idm.dynamics.readEnrolmentRequests(serviceId, contactId)
 
-        if (!contactAccountLinks || !contactAccountLinks.length) {
-          throw new Error(`Contact record not linked to any accounts - contactId ${contactId}`)
+        if (!enrolmentRequests || !enrolmentRequests.length) {
+          throw new Error(`No unspent enrolment requests - contactId ${contactId}`)
         }
 
-        // Get details of our existing enrolments for this service
-        const currentEnrolments = await idm.dynamics.readEnrolment(contactId, null, null, null, serviceId, true)
-
-        // Our array of tasks
-        let promises = []
-
-        // Create promises to create enrolments for links that we currently don't have enrolments for
-        promises = promises.concat(contactAccountLinks.map(link => {
-          const existingEnrolment = parsedAuthzRoles.rolesByOrg[link.accountId]
-
-          if (!existingEnrolment) {
-            return idm.dynamics.createEnrolment(contactId, link.connectionDetailsId, newEnrolmentStatusId, link.accountId, undefined, serviceRoleId)
-          }
-        }).filter(i => !!i))
-
-        // Create promises to update the status of enrolments we do already have
-        promises = promises.concat(currentEnrolments.value
-          .map(currentEnrolment => idm.dynamics.updateEnrolmentStatus(currentEnrolment.defra_lobserviceuserlinkid, newEnrolmentStatusId)))
-
-        // Wait for all promises to complete
-        await Promise.all(promises)
-
-        // Refresh our token with new roles
+        // Create an enrolment for this user/organisation/service combination
+        const matchedRequest = enrolmentRequests.find(r => r.connectionDetailsId === connectionDetailsId) || {}
+        if (connectionDetailsId) {
+          await idm.dynamics.createEnrolment(contactId, connectionDetailsId, newEnrolmentStatusId, matchedRequest.accountId, undefined, serviceRoleId)
+        }
+        // Refresh our token with new roles and set the plugin serviceId
+        let config = idm.getConfig()
+        config.serviceId = serviceId
         await idm.refreshToken(request)
-
-        return 'Enrolment successfully updated. <a href="/enrolment">Click here to return</a>'
+        return h.redirect(`/enrolment/${journey}`)
       } catch (e) {
         console.error(e)
-
         return `Uh oh. Error: ${e}`
       }
     }
