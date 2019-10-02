@@ -1,4 +1,4 @@
-const connectionRoleIds = {
+const byRoleId = {
   '1eb54ab1-58b7-4d14-bf39-4f3e402616e8': 'Employee',
   '35a23b91-ec62-41ea-b5e5-c59b689ff0b4': 'Employer',
   'caaf4df7-0229-e811-a831-000d3a2b29f8': 'Agent',
@@ -10,4 +10,15 @@ const connectionRoleIds = {
   '3fc7e717-0b90-e811-a845-000d3ab4fddf': 'Defra/Citizen'
 }
 
-module.exports = connectionRoleIds
+module.exports = {
+  byRoleId,
+  byName: (name) => {
+    let result = ''
+    Object.keys(byRoleId).forEach(key => {
+      if (byRoleId[key] === name) {
+        result = key
+      }
+    })
+    return result
+  }
+}

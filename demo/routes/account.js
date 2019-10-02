@@ -42,8 +42,8 @@ module.exports = [
         const found = enrolments.find((e) => e.accountId === conn.accountId)
         if (found) {
           // Add the connection type
-          found.connectionType = connectionRoleIds[conn.roleId]
-          if (found.connectionType.indexOf('Citizen') > -1) {
+          found.connectionType = connectionRoleIds.byRoleId(conn.roleId)
+          if (conn.roleId === connectionRoleIds.byName('Citizen')) {
             found.accountName = 'Citizen'
           }
           services.push(found)

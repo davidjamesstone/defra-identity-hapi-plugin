@@ -1,17 +1,27 @@
-// const config = require('../config')
 const serviceLookup = require('../lib/services')
+/**
+ * GUID
+ * @typedef {string} GUID A globally unique identifier
+ */
 
 /**
- * filter the available services to only those for which there is an enrolment request
- * @param {Object} list
- * @param {Array<EnrolmentRequest} requests
+ * ServiceLookup
+ * @typedef ServiceLookup
+ * @property {GUID} roleId
+ * @property {GUID} serviceId
+ * @property {string} serviceName
  */
-const filterServiceLookup = (list, requests) => {
-  const allowedServices = requests.map(r => r.serviceId)
+/**
+ * filter the available services to only those for which there is an enrolment request
+ * @param {ServiceLookup} availableServices
+ * @param {Array<EnrolmentRequest} enrolmentRequests
+ */
+const filterServiceLookup = (availableServices, enrolmentRequests) => {
+  const allowedServices = enrolmentRequests.map(r => r.serviceId)
   const result = {}
-  Object.keys(list).forEach((key) => {
-    if (allowedServices.includes(list[key].serviceId)) {
-      result[key] = list[key]
+  Object.keys(availableServices).forEach((key) => {
+    if (allowedServices.includes(availableServices[key].serviceId)) {
+      result[key] = availableServices[key]
     }
   })
   return result
@@ -26,7 +36,7 @@ module.exports = [
     },
     handler: async function (request, h) {
       const { journey } = request.params
-      const errorMessage = !serviceLookup.hasOwnProperty(journey) ? 'Invalid Journey Type!' : undefined
+      const errorMessage = Object.keys(serviceLookup).indexOf(journey) === -1 ? 'Invalid Journey Type!' : undefined
       if (errorMessage) {
         return h.view('enrolment', {
           title: 'enrolment',
@@ -41,7 +51,7 @@ module.exports = [
       }
       const { idm } = request.server.methods
       const serviceId = serviceLookup[journey].serviceId
-      let config = idm.getConfig()
+      const config = idm.getConfig()
       config.serviceId = serviceId
       await idm.refreshToken(request) // ensure we read the latest changes so the view reflects the database
       const claims = await idm.getClaims(request)
@@ -114,7 +124,7 @@ module.exports = [
           await idm.dynamics.createEnrolment(contactId, connectionDetailsId, newEnrolmentStatusId, matchedRequest.accountId, undefined, serviceRoleId)
         }
         // Refresh our token with new roles and set the plugin serviceId
-        let config = idm.getConfig()
+        const config = idm.getConfig()
         config.serviceId = serviceId
         await idm.refreshToken(request)
         return h.redirect(`/enrolment/${journey}`)
