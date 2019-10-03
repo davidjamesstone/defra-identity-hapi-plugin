@@ -7,7 +7,7 @@ const serviceLookup = {
   'vmdapply': { roleId: '0dee7d46-71b6-e811-a954-000d3a29b5de', serviceId: 'a65e89e7-66b6-e811-a954-000d3a29b5de', serviceName: 'Apply to licence a Veterinary Medicine' }, // Standard User
   'ipaffs': { roleId: '57502079-ce02-e911-a847-000d3ab4ffef', serviceId: '8b5214ee-62b6-e811-a954-000d3a29b5de', serviceName: 'IPAFFS' }, // Administrator
   'exports': { roleId: 'cc108aff-b6df-e811-a845-000d3ab4ffef', serviceId: '34b46f99-66b6-e811-a954-000d3a29b5de', serviceName: 'Exporter Service' }, // Official Veterinarian
-  'vmdsecure': { roleId: '3015249a-c1cc-e811-a95b-000d3a29ba6', serviceId: 'a99fcef9-66b6-e811-a954-000d3a29b5de', serviceName: 'VMD Secure Messaging' }, // Standard User
+  'vmdsecure': { roleId: '3015249a-c1cc-e811-a95b-000d3a29ba60', serviceId: 'a99fcef9-66b6-e811-a954-000d3a29b5de', serviceName: 'VMD Secure Messaging' }, // Standard User
   'vmdreport': { roleId: '3c669b52-71b6-e811-a954-000d3a29b5de', serviceId: '39c4599e-27de-e811-a842-000d3ab4f534', serviceName: 'Report an Adverse Event to a Veterinary Medicine' }, // Standard User
   'certifier': { roleId: '14c9c4b4-8675-e911-a850-000d3ab4ffef', serviceId: '418e0099-8675-e911-a850-000d3ab4ffef', serviceName: 'Certifier Service' } // Certifier
 }
