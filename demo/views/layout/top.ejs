@@ -50,8 +50,9 @@
                         <a href="<%= idm.getConfig().identityAppUrl %>/account-management" role="button" style="float: right; color: white; margin: 5px 10px 0 0;">Your
                             Account</a>
                     <% } %>
-
+                    <% if (locals.journey) { %>
                     <a href="/account/<%= journey %>" role="button" style="float: right; color: white; margin: 5px 10px 0 0;">Protected Area</a>
+                    <% } %>
                 </nav>
             </div>
         </div>
