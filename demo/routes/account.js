@@ -12,7 +12,10 @@ module.exports = [
       const { journey } = request.params
       const { idm } = request.server.methods
       const claims = await idm.getClaims(request)
-      const { contactId = 'unknown' } = claims
+      if (!claims) {
+        return h.redirect('/error')
+      }
+      const { contactId } = claims
       const serviceId = serviceLookup[journey].serviceId
 
       // read the connections for the current contact
