@@ -83,7 +83,10 @@ function switchService(element) {
         <div class="row">
             <table class="govuk-table">
             <tr>
-                <td ><a href="/enrolment/<%= journey %>" class="button">Manage enrolments</a></p></td>
+                <td >
+                    <a href="/enrolment/<%= journey %>" class="button">Manage enrolments</a>
+                    <a href="/request/<%= journey %>" class="button">Manage requests</a>
+                </td>
                 <td class="right">
                     <label for="service-switch">Switch service:</label>
                     <select id="service-switch" onchange="switchService(document.getElementById('service-switch'))" class="service-selector">

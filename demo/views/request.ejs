@@ -1,0 +1,53 @@
+<% include layout/top.ejs %>
+<script>
+  function switchService(element) {
+    var service = element.options[element.selectedIndex].value;
+    var path = window.location.href.split('/');
+    path.splice(path.length - 1, 1);
+    path = path.join('/') + '/' + service;
+    const redirect = document.getElementById('redirect')
+    redirect.href=path;
+    redirect.click();
+  }
+</script>
+  <a id="redirect" href="" style="display:none">Redirect</a>
+  <div class="breadcrumbs breadcrumb-two-thirds">
+      <ol>
+          <li><a href="/account/<%= journey %>">Home</a></li>
+          <li>Manage Enrolment Requests</li>
+      </ol>
+  </div>
+
+  <div class="grid-row">
+    <div class="column-full">
+      <% if (errorMessage) { %>
+      <%- include partials/errorBox.ejs %>
+      <% } %>
+      <h3 class="heading-large">Manage your enrolment requests</h3>
+      <% if (enrolmentRequests.length === 0) { %>
+        <p class="govuk-body">You don't have any enrolment requests for <%= serviceName %></p>
+      <% } %>
+
+      <hr>
+      <form method="GET">
+        <div class="row">
+            <table class="govuk-table">
+            <tr>
+                <td >
+                  &nbsp;
+                </td>
+                <td class="right">
+                    <label for="service-switch">Switch service:</label>
+                    <select id="service-switch" onchange="switchService(document.getElementById('service-switch'))" class="service-selector">
+                    <%- include partials/journeySelectorOptions.ejs %>
+                    </select>
+                </td>
+            </tr>
+            </table>
+
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+    
