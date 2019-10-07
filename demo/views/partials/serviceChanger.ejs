@@ -1,0 +1,15 @@
+<% services.forEach((service)=>{ %>
+  <tr>
+    <td><%= service.accountName %></td>
+    <td><%= service.serviceName %></td>
+    <td><%= service.enrolmentType %></td>
+    <td class="servicestatus status-<%=service.connectionDetailsId%>"><%= service.status %></td>
+    <td class="hide serviceupdate update-<%=service.connectionDetailsId%>">
+      <select>
+        <option>TEST</option>
+      </select>
+    </td>
+    <td><button type="button" class="button onclick='updateRow(<%=service.connectionDetailsId%>)' ">Edit</button></td>
+  </tr>
+  <% }) %>
+  

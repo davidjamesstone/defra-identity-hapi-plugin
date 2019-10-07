@@ -1,53 +1,48 @@
 <% include layout/top.ejs %>
 <script>
-  function switchService(element) {
-    var service = element.options[element.selectedIndex].value;
-    var path = window.location.href.split('/');
-    path.splice(path.length - 1, 1);
-    path = path.join('/') + '/' + service;
-    const redirect = document.getElementById('redirect')
-    redirect.href=path;
-    redirect.click();
+  function updateRow(id) {
+    var serviceUpdate = document.getElementsByClassName('serviceupdate');
+    var serviceStatus = document.getElementsByClassName('servicestatus');
+    for (var i = serviceStatus.length - 1; i >= 0; i--) {
+      serviceStatus[i].className = serviceStatus[i].className.replace('show', 'hide');
+    }
+    for (var i = serviceUpdate.length - 1; i >= 0; i--) {
+      serviceUpdate[i].className = serviceUpdate[i].className.replace('hide', 'show');
+    }
+    var thisStatus = document.getElementById('status-' + id)
+    var thisUpdate = document.getElementById('update-' + id)
+    thisStatus.className += ' hide'
+    thisUpdate.className = thisUpdate.className.replace('hide', 'show')
   }
 </script>
-  <a id="redirect" href="" style="display:none">Redirect</a>
-  <div class="breadcrumbs breadcrumb-two-thirds">
-      <ol>
-          <li><a href="/account/<%= journey %>">Home</a></li>
-          <li>Manage Enrolment Requests</li>
-      </ol>
+<div class="breadcrumbs breadcrumb-two-thirds">
+  <ol>
+    <li><a href="/account/<%= journey %>">Home</a></li>
+    <li>Manage Enrolment Requests</li>
+  </ol>
+</div>
+
+<div class="grid-row">
+  <div class="column-full">
+    <% if (errorMessage) { %>
+    <%- include partials/errorBox.ejs %>
+    <% } %>
+    <h3 class="heading-large">Manage your enrolment requests</h3>
+    <% if (enrolments === 0) { %>
+    <p class="govuk-body">You don't have any enrolment requests for <%= serviceName %></p>
+    <% } else { %>
+    <table class="govuk-table">
+      <thead>
+        <tr>
+          <th>Organisation</th>
+          <th>Service</th>
+          <th>Enrolment Type</th>
+          <th>Enrolment Status</th>
+        </tr>
+      </thead>
+      <%- include partials/serviceChanger.ejs %>
+    </table>
+    <% } %>
   </div>
-
-  <div class="grid-row">
-    <div class="column-full">
-      <% if (errorMessage) { %>
-      <%- include partials/errorBox.ejs %>
-      <% } %>
-      <h3 class="heading-large">Manage your enrolment requests</h3>
-      <% if (enrolmentRequests.length === 0) { %>
-        <p class="govuk-body">You don't have any enrolment requests for <%= serviceName %></p>
-      <% } %>
-
-      <hr>
-      <form method="GET">
-        <div class="row">
-            <table class="govuk-table">
-            <tr>
-                <td >
-                  &nbsp;
-                </td>
-                <td class="right">
-                    <label for="service-switch">Switch service:</label>
-                    <select id="service-switch" onchange="switchService(document.getElementById('service-switch'))" class="service-selector">
-                    <%- include partials/journeySelectorOptions.ejs %>
-                    </select>
-                </td>
-            </tr>
-            </table>
-
-        </div>
-      </form>
-    </div>
-  </div>
+</div>
 </main>
-    

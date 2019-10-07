@@ -63,7 +63,9 @@
   transform: scale(1.5);
 }
 
-
+.hide{
+  display: none;
+}
 
 #content {
   max-width: 960px;
