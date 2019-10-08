@@ -13,7 +13,7 @@
         <%- include partials/errorBox.ejs %>
         <% } %>
         <h3 class="heading-large">Choose your enrolment status</h3>
-        <% if (enrolmentRequests !== 0) { %>
+        <% if (enrolmentRequestsCount !== 0) { %>
         <form method="post">
             <div class="row">
                 <label for="contactId">ContactId:</label>
@@ -42,15 +42,15 @@
             </div>
             <br>
             <div class="row">
-                <button class="button" type="submit" <% if (enrolmentRequests === 0) { %> disabled="disabled"<% } %>)>Submit</button>
+                <button class="button" type="submit" <% if (enrolmentRequestsCount === 0) { %> disabled="disabled"<% } %>)>Submit</button>
             </div>
         </form>
         <hr>
         <% } %>
-        <% if (enrolmentRequests === 0) { %>
+        <% if (enrolmentRequestsCount === 0) { %>
         <div class="row">There are no unspent enrolmentRequests</div>
         <% } else { %>
-        <div class="row">There are <%=enrolmentRequests%> unspent enrolmentRequests</div>
+        <div class="row">There are <%=enrolmentRequestsCount%> unspent enrolmentRequests</div>
         <% } %>
         <hr>
         <div class="row">

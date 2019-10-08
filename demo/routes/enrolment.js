@@ -86,7 +86,7 @@ module.exports = [
         claims,
         journey,
         errorMessage,
-        enrolmentRequests: enrolmentRequests.length,
+        enrolmentRequestsCount: enrolmentRequests.length,
         serviceName: serviceLookup[journey].serviceName,
         contactId,
         accountNames,
