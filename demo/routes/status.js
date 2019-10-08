@@ -27,11 +27,12 @@ module.exports = [
       // convert the enrolments into the data structure required by the data rows in the view
       const enrolments = rawEnrolments
         .map(thisEnrolment => new EnrolmentStatus(thisEnrolment))
-        .filter(e => e.enrolmentTypeId !== '5a90dd44-dd9b-e811-a94f-000d3a3a8543')
+        .filter(e => !e.isIdentity())
 
-      enrolments.sort((a, b) => {
-        return a.status + (a.accountName + '').toUpperCase() >= b.status + (b.accountName + '').toUpperCase() ? 1 : -1
+      enrolments.sort((a, b) => { // Sort by organisation / status
+        return (a.accountName + '').toUpperCase() + a.status >= (b.accountName + '').toUpperCase() + b.status ? 1 : -1
       })
+
       return h.view('status', {
         title: 'Requests',
         idm,
