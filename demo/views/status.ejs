@@ -4,7 +4,7 @@
     reload()
     var thisStatus = document.getElementById('status-' + id)
     var thisUpdate = document.getElementById('update-' + id)
-    thisStatus.className += ' hide'
+    thisStatus.className = thisStatus.className.replace('show', 'hide')
     thisUpdate.className = thisUpdate.className.replace('hide', 'show')
   }
 
