@@ -75,7 +75,9 @@ module.exports = [
           }
         })
       }
-      accountNames.push({ accountId: 'citizen', accountName: 'Citizen', request: enrolmentRequests.find(r => r.accountId === null) || noConnectionDetails })
+      if (accountNames.length === 0) {
+        accountNames.push({ accountId: 'citizen', accountName: 'Citizen', request: enrolmentRequests.find(r => r.accountId === null) || noConnectionDetails })
+      }
       // filter the serviceLookup list to only show services you're allowed (ie there's an enrolmentRequest for it)
       const services = filterServiceLookup(serviceLookup, enrolmentRequests)
       return h.view('enrolment', {

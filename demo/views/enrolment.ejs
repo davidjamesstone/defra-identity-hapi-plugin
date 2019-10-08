@@ -13,7 +13,7 @@
         <%- include partials/errorBox.ejs %>
         <% } %>
         <h3 class="heading-large">Choose your enrolment status</h3>
-
+        <% if (enrolmentRequests !== 0) { %>
         <form method="post">
             <div class="row">
                 <label for="contactId">ContactId:</label>
@@ -46,6 +46,7 @@
             </div>
         </form>
         <hr>
+        <% } %>
         <% if (enrolmentRequests === 0) { %>
         <div class="row">There are no unspent enrolmentRequests</div>
         <% } else { %>

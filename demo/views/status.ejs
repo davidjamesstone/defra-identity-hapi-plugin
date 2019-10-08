@@ -1,24 +1,27 @@
 <% include layout/top.ejs %>
 <script>
   function updateRow(id) {
-    var serviceUpdate = document.getElementsByClassName('serviceupdate');
-    var serviceStatus = document.getElementsByClassName('servicestatus');
-    for (var i = serviceStatus.length - 1; i >= 0; i--) {
-      serviceStatus[i].className = serviceStatus[i].className.replace('show', 'hide');
-    }
-    for (var i = serviceUpdate.length - 1; i >= 0; i--) {
-      serviceUpdate[i].className = serviceUpdate[i].className.replace('hide', 'show');
-    }
+    reload()
     var thisStatus = document.getElementById('status-' + id)
     var thisUpdate = document.getElementById('update-' + id)
     thisStatus.className += ' hide'
     thisUpdate.className = thisUpdate.className.replace('hide', 'show')
   }
+  function reload(){
+    var serviceStatus = document.getElementsByClassName('servicestatus');
+    for (var i = 0; i < serviceStatus.length; i++) {
+      serviceStatus[i].className = serviceStatus[i].className.replace('hide', 'show');
+    }
+    var serviceUpdate = document.getElementsByClassName('serviceupdate');
+    for (var i = 0; i < serviceStatus.length; i++) {
+      serviceUpdate[i].className = serviceUpdate[i].className.replace('show', 'hide');
+    }
+  }
 </script>
 <div class="breadcrumbs breadcrumb-two-thirds">
   <ol>
     <li><a href="/account/<%= journey %>">Home</a></li>
-    <li>Manage Enrolment Requests</li>
+    <li>Manage Enrolment Status</li>
   </ol>
 </div>
 
@@ -27,9 +30,9 @@
     <% if (errorMessage) { %>
     <%- include partials/errorBox.ejs %>
     <% } %>
-    <h3 class="heading-large">Manage your enrolment requests</h3>
-    <% if (enrolments === 0) { %>
-    <p class="govuk-body">You don't have any enrolment requests for <%= serviceName %></p>
+    <h3 class="heading-large">Manage your enrolment status</h3>
+    <% if (enrolments.length === 0) { %>
+    <p class="govuk-body">You don't have any enrolments!</p>
     <% } else { %>
     <table class="govuk-table">
       <thead>

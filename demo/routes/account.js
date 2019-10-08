@@ -46,7 +46,7 @@ module.exports = [
         if (found) {
           // Add the connection type
           found.connectionType = connectionRoleIds.byRoleId[conn.roleId]
-          if (conn.roleId === connectionRoleIds.byName('Citizen')) {
+          if (!found.accountName) {
             found.accountName = 'Citizen'
           }
           services.push(found)

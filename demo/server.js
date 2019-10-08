@@ -195,7 +195,7 @@ async function start () {
     ...require('./routes/root'),
     ...require('./routes/account'),
     ...require('./routes/enrolment'),
-    ...require('./routes/request'),
+    ...require('./routes/status'),
     ...require('./routes/error')
   ])
 
