@@ -7,6 +7,7 @@
     thisStatus.className += ' hide'
     thisUpdate.className = thisUpdate.className.replace('hide', 'show')
   }
+
   function reload(){
     var serviceStatus = document.getElementsByClassName('servicestatus');
     for (var i = 0; i < serviceStatus.length; i++) {
@@ -18,20 +19,18 @@
     }
   }
 </script>
+
 <div class="breadcrumbs breadcrumb-two-thirds">
   <ol>
     <li><a href="/account/<%= journey %>">Home</a></li>
-    <li>Manage Enrolment Status</li>
+    <li>Manage enrolment status</li>
   </ol>
 </div>
 
 <div class="grid-row">
   <div class="column-full">
-    <% if (errorMessage) { %>
-    <%- include partials/errorBox.ejs %>
-    <% } %>
-    <h3 class="heading-large">Manage your enrolment status</h3>
-    <% if (enrolments.length === 0) { %>
+    <h3 class="heading-large">Manage enrolment status</h3>
+    <% if (filteredEnrolments.length === 0) { %>
     <p class="govuk-body">You don't have any enrolments!</p>
     <% } else { %>
     <table class="govuk-table">
