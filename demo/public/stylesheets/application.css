@@ -55,6 +55,22 @@
   font-weight: bold;
 }
 
+.button-red{
+  background-color: red!important;
+  color: #fff;
+}
+
+.boxed{
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 5px;
+  background-color: #eee;
+}
+
+.boxed .button{
+  margin-top: 5px;
+}
+
 .bigbox{
   -ms-transform: scale(1.5); /* IE */
   -moz-transform: scale(1.5); /* FF */
@@ -63,7 +79,9 @@
   transform: scale(1.5);
 }
 
-
+.hide{
+  display: none;
+}
 
 #content {
   max-width: 960px;

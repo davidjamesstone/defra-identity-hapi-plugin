@@ -1,0 +1,50 @@
+<% include layout/top.ejs %>
+<script>
+  function updateRow(id) {
+    reload()
+    var thisStatus = document.getElementById('status-' + id)
+    var thisUpdate = document.getElementById('update-' + id)
+    thisStatus.className = thisStatus.className.replace('show', 'hide')
+    thisUpdate.className = thisUpdate.className.replace('hide', 'show')
+  }
+
+  function reload(){
+    var serviceStatus = document.getElementsByClassName('servicestatus');
+    for (var i = 0; i < serviceStatus.length; i++) {
+      serviceStatus[i].className = serviceStatus[i].className.replace('hide', 'show');
+    }
+    var serviceUpdate = document.getElementsByClassName('serviceupdate');
+    for (var i = 0; i < serviceStatus.length; i++) {
+      serviceUpdate[i].className = serviceUpdate[i].className.replace('show', 'hide');
+    }
+  }
+</script>
+
+<div class="breadcrumbs breadcrumb-two-thirds">
+  <ol>
+    <li><a href="/account/<%= journey %>">Home</a></li>
+    <li>Manage enrolment status</li>
+  </ol>
+</div>
+
+<div class="grid-row">
+  <div class="column-full">
+    <h3 class="heading-large">Manage enrolment status</h3>
+    <% if (filteredEnrolments.length === 0) { %>
+    <p class="govuk-body">You don't have any enrolments!</p>
+    <% } else { %>
+    <table class="govuk-table">
+      <thead>
+        <tr>
+          <th>Organisation</th>
+          <th>Service</th>
+          <th>Enrolment Type</th>
+          <th>Enrolment Status</th>
+        </tr>
+      </thead>
+      <%- include partials/serviceChanger.ejs %>
+    </table>
+    <% } %>
+  </div>
+</div>
+</main>

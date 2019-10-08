@@ -1,0 +1,26 @@
+<% filteredEnrolments.forEach((service)=>{ %>
+  <tr>
+    <td><%= service.accountName %></td>
+    <td><%= service.serviceName %></td>
+    <td><%= service.enrolmentType %></td>
+    <td width="300" class="show servicestatus" id="status-<%=service.lobserviceUserLinkId%>"><%= service.status %></td>
+    <td width="300" class="hide serviceupdate" id="update-<%=service.lobserviceUserLinkId%>">
+      <div class="boxed">
+        <form method="POST">
+          <select name="enrolmentStatusId" id="enrolmentStatusId" class="service-selector">
+            <option <% if (service.statusId === 1){%> selected="selected" <%} %> value="1">Incomplete</option>
+            <option <% if (service.statusId === 2){%> selected="selected" <%} %> value="2">Pending</option>
+            <option <% if (service.statusId === 3){%> selected="selected" <%} %> value="3">Complete - approved</option>
+            <option <% if (service.statusId === 4){%> selected="selected" <%} %> value="4">Complete - rejected</option>
+          </select>
+          <input type="hidden" name="journey" value="<%= journey %>">
+          <input type="hidden" name="lobserviceUserLinkId" value="<%= service.lobserviceUserLinkId %>">
+          <button class="button" type="submit">Save</button>
+          <button class="button button-red" type="button" onclick="reload()">Cancel</button>
+        </form>
+      </div>
+    </td>
+    <td><button type="button" class="button" onclick="updateRow('<%= service.lobserviceUserLinkId %>')">Edit</button></td>
+  </tr>
+  <% }) %>
+  
