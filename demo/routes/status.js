@@ -67,9 +67,6 @@ module.exports = [
     handler: async function (request, h) {
       const { journey } = request.params
       const { enrolmentStatusId, unid } = request.payload
-      // update enrolment where the defra_uniquereference=unid and set the defra_enrolmentstatus to enrolmentStatusId
-      console.log('enrolmentStatusId: ', enrolmentStatusId)
-      console.log('defra_enrolmentstatus: ', unid)
       const { idm } = request.server.methods
       await idm.dynamics.updateEnrolmentStatus(unid, enrolmentStatusId)
       return h.redirect(`/status/${journey}`)
