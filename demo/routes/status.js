@@ -55,9 +55,9 @@ module.exports = [
     },
     handler: async function (request, h) {
       const { journey } = request.params
-      const { enrolmentStatusId, lobserviceuserlinkid } = request.payload
+      const { enrolmentStatusId, lobserviceUserLinkId } = request.payload
       const { idm } = request.server.methods
-      await idm.dynamics.updateEnrolmentStatus(lobserviceuserlinkid, enrolmentStatusId)
+      await idm.dynamics.updateEnrolmentStatus(lobserviceUserLinkId, enrolmentStatusId)
       return h.redirect(`/status/${journey}`)
     }
   }
