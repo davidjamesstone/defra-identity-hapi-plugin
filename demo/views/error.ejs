@@ -11,14 +11,9 @@
             <h2 class="heading-medium error-summary-heading" id="error-summary-heading-example-1">
                 <%= title %>
             </h2>
-
             <p>
                 <%- message %>
             </p>
-
-            <% if( stack ) { %>
-            <pre><%- JSON.stringify(credentials, null, 2) %></pre>
-            <% } %>
         </div>
     </div>
 </div>
