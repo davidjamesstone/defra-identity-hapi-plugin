@@ -20,7 +20,7 @@ module.exports = [
           return h.redirect(link)
         }
         title = 'Whoops...'
-        message = `You need to be logged in to do that. <a id="clickyLink" href="${link}">Click here to log in or create an account</a>`
+        message = `You need to be logged in to do that. <a href="${link}">Click here to log in or create an account</a>`
       }
 
       return h.view('error', {
