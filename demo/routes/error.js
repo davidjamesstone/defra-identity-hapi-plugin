@@ -18,7 +18,11 @@ module.exports = [
         const { next } = query
 
         title = 'Whoops...'
-        message = `You need to be logged in to do that. <a href='${idm.generateAuthenticationUrl(next)}'>Click here to log in or create an account</a>`
+        const link = idm.generateAuthenticationUrl(next)
+        if (next.indexOf('/account/') === 0) {
+          return h.redirect(link)
+        }
+        message = `You need to be logged in to do that. <a id="clickyLink" href="${link}">Click here to log in or create an account</a>`
       }
 
       return h.view('error', {
