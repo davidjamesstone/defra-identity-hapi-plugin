@@ -6,7 +6,7 @@ module.exports = [
     method: 'GET',
     path: '/account/{journey}',
     options: {
-      auth: false
+      auth: 'idm'
     },
     handler: async function (request, h) {
       const { journey } = request.params
