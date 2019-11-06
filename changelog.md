@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## 4.1.9 - 19 Sept 2019
+- IDM-2625
+  - Addition of EnrolmentRequest read functionality
+  - Implement models directory with EnrolmentRequest model
+
 ## 4.1.8 - 25 Jul 2019
 - Npm audit fixes
 
@@ -34,21 +39,21 @@ All notable changes to this project will be documented in this file.
 
 ## 4.0.0 - 14 Feb 2019
 - `idm.dynamics.parseAuthzRoles` will not return `null` if there are no roles - it will always return an object
-- - Also will now deduplicate roles, orgs, enrolment statuses
+  - Also will now deduplicate roles, orgs, enrolment statuses
 - `idm.dynamics.createEnrolment` uses the native dynamics api
-- - The signature has changed as a result
-- - No longer need to create role as "pending" before setting it to "complete" - can set to complete status straight away
+  - The signature has changed as a result
+  - No longer need to create role as "pending" before setting it to "complete" - can set to complete status straight away
 - `idm.dynamics.readEnrolment` supports the retrieval of enrolments by serviceId
-- - Also supports a flag to indicate whether to return all enrolments for a service - regardless of whether there is a service role associated with it
-- - The signature has changed as a result
+  - Also supports a flag to indicate whether to return all enrolments for a service - regardless of whether there is a service role associated with it
+  - The signature has changed as a result
 - `idm.dynamics.readServiceEnrolment` supports handshake enrolments - enrolments without a service role
-- - Parameter serves as flag to indicate whether to include them
+  - Parameter serves as flag to indicate whether to include them
 
 ## 3.0.0 - 19 Dec 2018
 - Remove readContactsEmployerLinks and readContactsAgentCustomerLinks in favour of readContactsAccountLinks
-- - By default, reads links of type: employee, agentCustomer and citizen but accepts overrides for types of roles queried
-- - Allows for easy enrolment of citizen accounts
-- - Updates to demo to suit the above
+  - By default, reads links of type: employee, agentCustomer and citizen but accepts overrides for types of roles queried
+  - Allows for easy enrolment of citizen accounts
+  - Updates to demo to suit the above
 - Remove readContactIdFromB2cObjectId - No longer needed now that contact id is passed back in the token
 
 ## 2.6.0 - 18 Dec 2018
