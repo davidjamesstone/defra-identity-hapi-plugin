@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## 4.1.10 - 28 Nov 2019
+- CIDM-243 - Change default service role for IPAFFS
+- Added a version check so going to /version will return the current version number from the package.json file
+
+** A number of changes took place here, including the creation of the switch branch, without the changelog being updated. **
+
 ## 4.1.9 - 19 Sept 2019
 - IDM-2625
   - Addition of EnrolmentRequest read functionality
