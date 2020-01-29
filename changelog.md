@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## 4.1.10 - 29 Jan 2020
+- IDM-389 - Fix to pass correctly hashed state to cache drop function
+
 ## 4.1.9 - 19 Sept 2019
 - IDM-2625
   - Addition of EnrolmentRequest read functionality
