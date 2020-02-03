@@ -13,7 +13,8 @@ const serverCache = config.mongoCache.enabled ? [
   {
     name: 'mongoCache',
     engine: catboxMongo,
-    host: config.mongoCache.host,
+    host: config.mongoCache.connectionString ? undefined : config.mongoCache.host,
+    uri: config.mongoCache.connectionString,
     partition: 'idm-cache'
   }
 ] : undefined
