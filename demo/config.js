@@ -42,6 +42,7 @@ module.exports = {
 
   mongoCache: {
     enabled: env.USE_MONGODB === 'true',
-    host: '127.0.0.1'
+    host: '127.0.0.1',
+    connectionString: env.MONGO_CONNECTIONSTRING || undefined
   }
 }
