@@ -1,5 +1,6 @@
 const Lab = require('lab')
 const Code = require('code')
+const md5 = require('md5')
 const lab = exports.lab = Lab.script()
 
 const { describe, it } = lab
@@ -220,7 +221,7 @@ describe('Internals - routes', () => {
         backToPath: mock.config.defaultBackToPath
       })
       expect(passed.cache).to.equal({
-        state: mock.state,
+        state: md5(mock.state),
         request: mock.request
       })
     })

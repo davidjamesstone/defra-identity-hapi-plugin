@@ -25,3 +25,4 @@ coverage.lcov
 Dockerfile
 docker-compose.yml
 start.sh
+.idea
