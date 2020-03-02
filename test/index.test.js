@@ -1,9 +1,8 @@
-const { expect } = require('code')
-const Lab = require('lab')
+const { expect } = require('@hapi/code')
+const Lab = require('@hapi/lab')
 const to = require('await-to-js').default
 const uuidv4 = require('uuid/v4')
-const url = require('url')
-const qs = require('querystring')
+const { URL, URLSearchParams } = require('url')
 const fs = require('fs')
 const path = require('path')
 const md5 = require('md5')
@@ -43,19 +42,19 @@ lab.experiment('Defra.Identity HAPI plugin server methods', () => {
     })
 
     const {
-      query,
+      search,
       pathname
     } = url
 
-    expect(query).to.equal({
+    expect(search).to.equal('?' + (new URLSearchParams({
       backToPath: '/',
       policyName: defaultPolicy,
-      forceLogin: undefined,
       journey: defaultJourney,
+      forceLogin: '',
       state,
-      nonce: undefined,
-      scope: undefined
-    })
+      nonce: '',
+      scope: ''
+    })).toString())
 
     expect(pathname).to.equal(outboundPath)
   })
@@ -82,19 +81,19 @@ lab.experiment('Defra.Identity HAPI plugin server methods', () => {
     })
 
     const {
-      query,
+      search,
       pathname
     } = url
 
-    expect(query).to.equal({
+    expect(search).to.equal('?' + (new URLSearchParams({
       backToPath: '/',
       policyName: defaultPolicy,
-      forceLogin: undefined,
       journey: defaultJourney,
+      forceLogin: '',
       state,
       nonce,
-      scope: undefined
-    })
+      scope: ''
+    })).toString())
 
     expect(pathname).to.equal(outboundPath)
   })
@@ -120,22 +119,22 @@ lab.experiment('Defra.Identity HAPI plugin server methods', () => {
     const { identityAppUrl } = idmConfig
 
     // Make sure we've been redirected to the appropriate identity provider
-    const parsedHeaderLocation = url.parse(res.headers.location)
-    const parsedIdentityAppUrl = url.parse(identityAppUrl)
+    const parsedHeaderLocation = new URL(res.headers.location)
+    const parsedIdentityAppUrl = new URL(identityAppUrl)
 
     expect(parsedHeaderLocation.protocol).to.equal(parsedIdentityAppUrl.protocol)
     expect(parsedHeaderLocation.host).to.equal(parsedIdentityAppUrl.host)
 
     // Make sure we've been redirect with the appropriate parameters
-    const parsedQuerystring = qs.parse(parsedHeaderLocation.query)
+    const parsedQuerystring = parsedHeaderLocation.searchParams
 
-    expect(parsedQuerystring.policyName).to.equal(idmConfig.defaultPolicy)
-    expect(parsedQuerystring.redirect_uri).to.equal(idmConfig.appDomain + idmConfig.redirectUri)
-    expect(parsedQuerystring.client_id).to.equal(idmConfig.clientId)
+    expect(parsedQuerystring.get('policyName')).to.equal(idmConfig.defaultPolicy)
+    expect(parsedQuerystring.get('redirect_uri')).to.equal(idmConfig.appDomain + idmConfig.redirectUri)
+    expect(parsedQuerystring.get('client_id')).to.equal(idmConfig.clientId)
 
-    expect(parsedQuerystring.state).to.equal(options.state)
-    expect(parsedQuerystring.nonce).to.equal(options.nonce)
-    expect(parsedQuerystring.scope).to.equal(options.scope)
+    expect(parsedQuerystring.get('state')).to.equal(options.state)
+    expect(parsedQuerystring.get('nonce')).to.equal(options.nonce)
+    expect(parsedQuerystring.get('scope')).to.equal(options.scope)
   })
 
   lab.test('The plugin should reject valid but expired jwt', async () => {
@@ -157,13 +156,13 @@ lab.experiment('Defra.Identity HAPI plugin server methods', () => {
       url: redirectUri,
       payload: {
         state,
-        'code': 'eyJraWQiOiJjcGltY29yZV8wOTI1MjAxNSIsInZlciI6IjEuMCIsInppcCI6IkRlZmxhdGUiLCJzZXIiOiIxLjAifQ..OGGZBoSqVKtszxvD.9wZLifx4zEVQXF5fUpBgJEe1bAyk0dSvbqgvfWwtZIb_4mQ4fTJoWswfBSV5wBA5OvGnXmB4LJQ3nau2ZgjvNf9CQXw2rkew9xjVIbae6zQ3JocEfX6hFqwOEtS4Lgyw_LtWdXqUp74UCcpOzoZiqtLWctyR3xheJl28h0b7BH5NZ8U7Okm4-T-Il-RIcfS3ts5Mfs8EktFjBW3JMprYuttRQ-0qWSGbdmEtMnlu-ByPmvqk0Ss6GNDnHQFicwIbTjEgWt6254iJtBsMbnDmt9r-o6KB1-ZHoQo6mHmGsmuZp7In_WvFUCWRbRt7cHQdyPdWz9kaWfx8vuVmC-8r0RvdTOhQo1P3LgNAyYcBGTnLT1W6mHl7JhffjKfyEtwQNVwclHBK1cTbqK0E4ENrPSd7jkrI7KBV08qQG0s_8p2z0U24nCgHiSJel-yPVF_4Wi3usopcKH2HFOvUHDLDcbYcBWIcEEykDdxpfeWCbW8iObui514E1unjz9qtaIOsLRdxtIXLL8GLhe5kd4nCJMIPRazhQ9OZXVXUDCZQiPC2gUG0cOpzhByY5S-X3ruQPXVePPQETGNwrNasU05Wm6JL5cXJQvBVax_5NdobEEos-m9UKoc7PQ.EQxigB0PwkD8dKoDrfgRHQ'
+        code: 'eyJraWQiOiJjcGltY29yZV8wOTI1MjAxNSIsInZlciI6IjEuMCIsInppcCI6IkRlZmxhdGUiLCJzZXIiOiIxLjAifQ..OGGZBoSqVKtszxvD.9wZLifx4zEVQXF5fUpBgJEe1bAyk0dSvbqgvfWwtZIb_4mQ4fTJoWswfBSV5wBA5OvGnXmB4LJQ3nau2ZgjvNf9CQXw2rkew9xjVIbae6zQ3JocEfX6hFqwOEtS4Lgyw_LtWdXqUp74UCcpOzoZiqtLWctyR3xheJl28h0b7BH5NZ8U7Okm4-T-Il-RIcfS3ts5Mfs8EktFjBW3JMprYuttRQ-0qWSGbdmEtMnlu-ByPmvqk0Ss6GNDnHQFicwIbTjEgWt6254iJtBsMbnDmt9r-o6KB1-ZHoQo6mHmGsmuZp7In_WvFUCWRbRt7cHQdyPdWz9kaWfx8vuVmC-8r0RvdTOhQo1P3LgNAyYcBGTnLT1W6mHl7JhffjKfyEtwQNVwclHBK1cTbqK0E4ENrPSd7jkrI7KBV08qQG0s_8p2z0U24nCgHiSJel-yPVF_4Wi3usopcKH2HFOvUHDLDcbYcBWIcEEykDdxpfeWCbW8iObui514E1unjz9qtaIOsLRdxtIXLL8GLhe5kd4nCJMIPRazhQ9OZXVXUDCZQiPC2gUG0cOpzhByY5S-X3ruQPXVePPQETGNwrNasU05Wm6JL5cXJQvBVax_5NdobEEos-m9UKoc7PQ.EQxigB0PwkD8dKoDrfgRHQ'
       }
     })
 
     expect(res.statusCode).to.equal(302)
 
-    const parsedHeaderLocation = url.parse(res.headers.location)
+    const parsedHeaderLocation = new URL(res.headers.location)
 
     expect(parsedHeaderLocation.pathname).to.equal(idmConfig.disallowedRedirectPath)
   })
@@ -228,29 +227,29 @@ lab.experiment('Defra.Identity HAPI plugin server methods', () => {
     }
 
     const tokenSet = {
-      'id_token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsifQ.eyJleHAiOjE1MjE4MjQ5NjUsIm5iZiI6MTUyMTgyMTM2NSwidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NiMDk2NzVhLWFmMjEtNGRkZS05Y2Y4LWY2MzIzNWEyMTlhMC92Mi4wLyIsInN1YiI6IjZlODdjNmU1LTljMDktNDdlMC1hMWNmLTkyYTYxZDI2MTI1ZiIsImF1ZCI6IjQ5NDg5MzViLTYxMzctNGVlOC04NmEzLTJkMGEyZTMxNDQyYiIsImlhdCI6MTUyMTgyMTM2NSwiYXV0aF90aW1lIjoxNTIxODIxMzY1LCJvaWQiOiI2ZTg3YzZlNS05YzA5LTQ3ZTAtYTFjZi05MmE2MWQyNjEyNWYiLCJnaXZlbl9uYW1lIjoiQ2hlc2hpcmUiLCJmYW1pbHlfbmFtZSI6IkNoZXNoaXJlIiwiZW1haWxzIjpbImRlZnJhQGlhbWNocmlzY2hlc2hpcmUuY28udWsiXSwidGZwIjoiQjJDXzFfYjJjLXdlYmFwcC1zaWdudXAtc2lnbmluIn0.plRV2ZoPcnXR7rj4zSexyksfoQE9AKBUaTKZTpfTcYmBmqnD159MH6sOoczWNp1mnI6ilwGj5c6Sdd0qlwaGmFOvylgebuDec2mvIbjxZ8kXSwl_GkgTE20sQVstsxhC66CU83fn7siRVLLhOWUmKD73KOFA5tb4lCYndXfbie4o0KFofWDrV-uzRJbr7BXXAyITdUCEs3gw29WTM0neKOUZJnnc930LjqAIbQmr4lvTrtq5qwj9OwE5G_vq0RVblWUuE4iQPobOMyJlUL74l74Nr1XarCqpP3RYerYRXNsRcJhasbQfknfoMrX2rnzj_h5xbSQO9cauAsphmXapfw',
-      'token_type': 'Bearer',
-      'not_before': 1521821365,
-      'id_token_expires_in': 3600,
-      'profile_info': 'eyJ2ZXIiOiIxLjAiLCJ0aWQiOiJjYjA5Njc1YS1hZjIxLTRkZGUtOWNmOC1mNjMyMzVhMjE5YTAiLCJzdWIiOm51bGwsIm5hbWUiOm51bGwsInByZWZlcnJlZF91c2VybmFtZSI6bnVsbCwiaWRwIjpudWxsfQ',
-      'refresh_token': 'eyJraWQiOiJjcGltY29yZV8wOTI1MjAxNSIsInZlciI6IjEuMCIsInppcCI6IkRlZmxhdGUiLCJzZXIiOiIxLjAifQ..og5tc9dcMCi1x9Sz.T5seCETmDU0m548QJ2rLYW8wEarhlCIL8MkJMVpzUpkDVJ-2FxHcFQghqNMxSi4PwogUqST4jDkeGdiazZw0Y66epXzwhvdmcHafXwUsFWV9tCTUPfsCfLHBWOYpdsOyFIFndMO5IOwodWYQc6W5lcdUsKlI-GDJvXnNUgKUdqKuXWBQsX9kaDCOFS8ze9MRrBgYmTleBsiXLdfOkVlBz5Gi5Mob69oiXjqyAjXY-h9OJDT9yFYbQcGuOBoOQqY5vomjCVLcX6cWy4t_IMlkGbs8GMCG0-yrgvDdIqILZqpa4bIkNiGiDeHasCCDTs1TLJYBbhc7rBa6A3wLdyRrrrDlntKA0g2A0jVCzWcyPvCcen9R0hcGBchCyfUR0yCEu9oHXFSN8v1UW_7mfumX_b8rrQ853nVKyjNlf5SI3UwYApnsE5I7EKFc_yHkM6uHVEfrWBQQX4NLbm3854QPp3gRFzaqr6WYnQWRy5vqHFqCt0k7zh3qCq0gubZw3K7rVZK-VON8Kpd2KLBP1MszaXLNzAdVcNQUVni-FYbxiYrVDvzI9LgFRtRJMtHjQC_6Ln8bY2RHm98FEiy53FQ6yT25OMuTmq3t9YKedpf1hvyRe9NwkrVuRhMK0uI.4D663219YNoPSmqnLBK7Hw',
-      'refresh_token_expires_in': 1209600,
-      'claims': {
-        'exp': 1521824965,
-        'nbf': 1521821365,
-        'ver': '1.0',
-        'iss': 'https://login.microsoftonline.com/cb09675a-af21-4dde-9cf8-f63235a219a0/v2.0/',
-        'sub': '6e87c6e5-9c09-47e0-a1cf-92a61d26125f',
-        'aud': '4948935b-6137-4ee8-86a3-2d0a2e31442b',
-        'iat': 1521821365,
-        'auth_time': 1521821365,
-        'oid': '6e87c6e5-9c09-47e0-a1cf-92a61d26125f',
-        'given_name': 'Chris',
-        'family_name': 'Cheshire',
-        'emails': [
+      id_token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsifQ.eyJleHAiOjE1MjE4MjQ5NjUsIm5iZiI6MTUyMTgyMTM2NSwidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NiMDk2NzVhLWFmMjEtNGRkZS05Y2Y4LWY2MzIzNWEyMTlhMC92Mi4wLyIsInN1YiI6IjZlODdjNmU1LTljMDktNDdlMC1hMWNmLTkyYTYxZDI2MTI1ZiIsImF1ZCI6IjQ5NDg5MzViLTYxMzctNGVlOC04NmEzLTJkMGEyZTMxNDQyYiIsImlhdCI6MTUyMTgyMTM2NSwiYXV0aF90aW1lIjoxNTIxODIxMzY1LCJvaWQiOiI2ZTg3YzZlNS05YzA5LTQ3ZTAtYTFjZi05MmE2MWQyNjEyNWYiLCJnaXZlbl9uYW1lIjoiQ2hlc2hpcmUiLCJmYW1pbHlfbmFtZSI6IkNoZXNoaXJlIiwiZW1haWxzIjpbImRlZnJhQGlhbWNocmlzY2hlc2hpcmUuY28udWsiXSwidGZwIjoiQjJDXzFfYjJjLXdlYmFwcC1zaWdudXAtc2lnbmluIn0.plRV2ZoPcnXR7rj4zSexyksfoQE9AKBUaTKZTpfTcYmBmqnD159MH6sOoczWNp1mnI6ilwGj5c6Sdd0qlwaGmFOvylgebuDec2mvIbjxZ8kXSwl_GkgTE20sQVstsxhC66CU83fn7siRVLLhOWUmKD73KOFA5tb4lCYndXfbie4o0KFofWDrV-uzRJbr7BXXAyITdUCEs3gw29WTM0neKOUZJnnc930LjqAIbQmr4lvTrtq5qwj9OwE5G_vq0RVblWUuE4iQPobOMyJlUL74l74Nr1XarCqpP3RYerYRXNsRcJhasbQfknfoMrX2rnzj_h5xbSQO9cauAsphmXapfw',
+      token_type: 'Bearer',
+      not_before: 1521821365,
+      id_token_expires_in: 3600,
+      profile_info: 'eyJ2ZXIiOiIxLjAiLCJ0aWQiOiJjYjA5Njc1YS1hZjIxLTRkZGUtOWNmOC1mNjMyMzVhMjE5YTAiLCJzdWIiOm51bGwsIm5hbWUiOm51bGwsInByZWZlcnJlZF91c2VybmFtZSI6bnVsbCwiaWRwIjpudWxsfQ',
+      refresh_token: 'eyJraWQiOiJjcGltY29yZV8wOTI1MjAxNSIsInZlciI6IjEuMCIsInppcCI6IkRlZmxhdGUiLCJzZXIiOiIxLjAifQ..og5tc9dcMCi1x9Sz.T5seCETmDU0m548QJ2rLYW8wEarhlCIL8MkJMVpzUpkDVJ-2FxHcFQghqNMxSi4PwogUqST4jDkeGdiazZw0Y66epXzwhvdmcHafXwUsFWV9tCTUPfsCfLHBWOYpdsOyFIFndMO5IOwodWYQc6W5lcdUsKlI-GDJvXnNUgKUdqKuXWBQsX9kaDCOFS8ze9MRrBgYmTleBsiXLdfOkVlBz5Gi5Mob69oiXjqyAjXY-h9OJDT9yFYbQcGuOBoOQqY5vomjCVLcX6cWy4t_IMlkGbs8GMCG0-yrgvDdIqILZqpa4bIkNiGiDeHasCCDTs1TLJYBbhc7rBa6A3wLdyRrrrDlntKA0g2A0jVCzWcyPvCcen9R0hcGBchCyfUR0yCEu9oHXFSN8v1UW_7mfumX_b8rrQ853nVKyjNlf5SI3UwYApnsE5I7EKFc_yHkM6uHVEfrWBQQX4NLbm3854QPp3gRFzaqr6WYnQWRy5vqHFqCt0k7zh3qCq0gubZw3K7rVZK-VON8Kpd2KLBP1MszaXLNzAdVcNQUVni-FYbxiYrVDvzI9LgFRtRJMtHjQC_6Ln8bY2RHm98FEiy53FQ6yT25OMuTmq3t9YKedpf1hvyRe9NwkrVuRhMK0uI.4D663219YNoPSmqnLBK7Hw',
+      refresh_token_expires_in: 1209600,
+      claims: {
+        exp: 1521824965,
+        nbf: 1521821365,
+        ver: '1.0',
+        iss: 'https://login.microsoftonline.com/cb09675a-af21-4dde-9cf8-f63235a219a0/v2.0/',
+        sub: '6e87c6e5-9c09-47e0-a1cf-92a61d26125f',
+        aud: '4948935b-6137-4ee8-86a3-2d0a2e31442b',
+        iat: 1521821365,
+        auth_time: 1521821365,
+        oid: '6e87c6e5-9c09-47e0-a1cf-92a61d26125f',
+        given_name: 'Chris',
+        family_name: 'Cheshire',
+        emails: [
           'cheese@biscuits.com'
         ],
-        'tfp': 'B2C_1_b2c-webapp-signup-signin'
+        tfp: 'B2C_1_b2c-webapp-signup-signin'
       }
     }
 
@@ -283,29 +282,29 @@ lab.experiment('Defra.Identity HAPI plugin server methods', () => {
     const idmCache = server.methods.idm.getCache()
 
     const tokenSet = {
-      'id_token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsifQ.eyJleHAiOjE1MjE4MjQ5NjUsIm5iZiI6MTUyMTgyMTM2NSwidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NiMDk2NzVhLWFmMjEtNGRkZS05Y2Y4LWY2MzIzNWEyMTlhMC92Mi4wLyIsInN1YiI6IjZlODdjNmU1LTljMDktNDdlMC1hMWNmLTkyYTYxZDI2MTI1ZiIsImF1ZCI6IjQ5NDg5MzViLTYxMzctNGVlOC04NmEzLTJkMGEyZTMxNDQyYiIsImlhdCI6MTUyMTgyMTM2NSwiYXV0aF90aW1lIjoxNTIxODIxMzY1LCJvaWQiOiI2ZTg3YzZlNS05YzA5LTQ3ZTAtYTFjZi05MmE2MWQyNjEyNWYiLCJnaXZlbl9uYW1lIjoiQ2hlc2hpcmUiLCJmYW1pbHlfbmFtZSI6IkNoZXNoaXJlIiwiZW1haWxzIjpbImRlZnJhQGlhbWNocmlzY2hlc2hpcmUuY28udWsiXSwidGZwIjoiQjJDXzFfYjJjLXdlYmFwcC1zaWdudXAtc2lnbmluIn0.plRV2ZoPcnXR7rj4zSexyksfoQE9AKBUaTKZTpfTcYmBmqnD159MH6sOoczWNp1mnI6ilwGj5c6Sdd0qlwaGmFOvylgebuDec2mvIbjxZ8kXSwl_GkgTE20sQVstsxhC66CU83fn7siRVLLhOWUmKD73KOFA5tb4lCYndXfbie4o0KFofWDrV-uzRJbr7BXXAyITdUCEs3gw29WTM0neKOUZJnnc930LjqAIbQmr4lvTrtq5qwj9OwE5G_vq0RVblWUuE4iQPobOMyJlUL74l74Nr1XarCqpP3RYerYRXNsRcJhasbQfknfoMrX2rnzj_h5xbSQO9cauAsphmXapfw',
-      'token_type': 'Bearer',
-      'not_before': 1521821365,
-      'id_token_expires_in': 3600,
-      'profile_info': 'eyJ2ZXIiOiIxLjAiLCJ0aWQiOiJjYjA5Njc1YS1hZjIxLTRkZGUtOWNmOC1mNjMyMzVhMjE5YTAiLCJzdWIiOm51bGwsIm5hbWUiOm51bGwsInByZWZlcnJlZF91c2VybmFtZSI6bnVsbCwiaWRwIjpudWxsfQ',
-      'refresh_token': 'eyJraWQiOiJjcGltY29yZV8wOTI1MjAxNSIsInZlciI6IjEuMCIsInppcCI6IkRlZmxhdGUiLCJzZXIiOiIxLjAifQ..og5tc9dcMCi1x9Sz.T5seCETmDU0m548QJ2rLYW8wEarhlCIL8MkJMVpzUpkDVJ-2FxHcFQghqNMxSi4PwogUqST4jDkeGdiazZw0Y66epXzwhvdmcHafXwUsFWV9tCTUPfsCfLHBWOYpdsOyFIFndMO5IOwodWYQc6W5lcdUsKlI-GDJvXnNUgKUdqKuXWBQsX9kaDCOFS8ze9MRrBgYmTleBsiXLdfOkVlBz5Gi5Mob69oiXjqyAjXY-h9OJDT9yFYbQcGuOBoOQqY5vomjCVLcX6cWy4t_IMlkGbs8GMCG0-yrgvDdIqILZqpa4bIkNiGiDeHasCCDTs1TLJYBbhc7rBa6A3wLdyRrrrDlntKA0g2A0jVCzWcyPvCcen9R0hcGBchCyfUR0yCEu9oHXFSN8v1UW_7mfumX_b8rrQ853nVKyjNlf5SI3UwYApnsE5I7EKFc_yHkM6uHVEfrWBQQX4NLbm3854QPp3gRFzaqr6WYnQWRy5vqHFqCt0k7zh3qCq0gubZw3K7rVZK-VON8Kpd2KLBP1MszaXLNzAdVcNQUVni-FYbxiYrVDvzI9LgFRtRJMtHjQC_6Ln8bY2RHm98FEiy53FQ6yT25OMuTmq3t9YKedpf1hvyRe9NwkrVuRhMK0uI.4D663219YNoPSmqnLBK7Hw',
-      'refresh_token_expires_in': 1209600,
-      'claims': {
-        'exp': 1521824965,
-        'nbf': 1521821365,
-        'ver': '1.0',
-        'iss': 'https://login.microsoftonline.com/cb09675a-af21-4dde-9cf8-f63235a219a0/v2.0/',
-        'sub': '6e87c6e5-9c09-47e0-a1cf-92a61d26125f',
-        'aud': '4948935b-6137-4ee8-86a3-2d0a2e31442b',
-        'iat': 1521821365,
-        'auth_time': 1521821365,
-        'oid': '6e87c6e5-9c09-47e0-a1cf-92a61d26125f',
-        'given_name': 'Chris',
-        'family_name': 'Cheshire',
-        'emails': [
+      id_token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsifQ.eyJleHAiOjE1MjE4MjQ5NjUsIm5iZiI6MTUyMTgyMTM2NSwidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2NiMDk2NzVhLWFmMjEtNGRkZS05Y2Y4LWY2MzIzNWEyMTlhMC92Mi4wLyIsInN1YiI6IjZlODdjNmU1LTljMDktNDdlMC1hMWNmLTkyYTYxZDI2MTI1ZiIsImF1ZCI6IjQ5NDg5MzViLTYxMzctNGVlOC04NmEzLTJkMGEyZTMxNDQyYiIsImlhdCI6MTUyMTgyMTM2NSwiYXV0aF90aW1lIjoxNTIxODIxMzY1LCJvaWQiOiI2ZTg3YzZlNS05YzA5LTQ3ZTAtYTFjZi05MmE2MWQyNjEyNWYiLCJnaXZlbl9uYW1lIjoiQ2hlc2hpcmUiLCJmYW1pbHlfbmFtZSI6IkNoZXNoaXJlIiwiZW1haWxzIjpbImRlZnJhQGlhbWNocmlzY2hlc2hpcmUuY28udWsiXSwidGZwIjoiQjJDXzFfYjJjLXdlYmFwcC1zaWdudXAtc2lnbmluIn0.plRV2ZoPcnXR7rj4zSexyksfoQE9AKBUaTKZTpfTcYmBmqnD159MH6sOoczWNp1mnI6ilwGj5c6Sdd0qlwaGmFOvylgebuDec2mvIbjxZ8kXSwl_GkgTE20sQVstsxhC66CU83fn7siRVLLhOWUmKD73KOFA5tb4lCYndXfbie4o0KFofWDrV-uzRJbr7BXXAyITdUCEs3gw29WTM0neKOUZJnnc930LjqAIbQmr4lvTrtq5qwj9OwE5G_vq0RVblWUuE4iQPobOMyJlUL74l74Nr1XarCqpP3RYerYRXNsRcJhasbQfknfoMrX2rnzj_h5xbSQO9cauAsphmXapfw',
+      token_type: 'Bearer',
+      not_before: 1521821365,
+      id_token_expires_in: 3600,
+      profile_info: 'eyJ2ZXIiOiIxLjAiLCJ0aWQiOiJjYjA5Njc1YS1hZjIxLTRkZGUtOWNmOC1mNjMyMzVhMjE5YTAiLCJzdWIiOm51bGwsIm5hbWUiOm51bGwsInByZWZlcnJlZF91c2VybmFtZSI6bnVsbCwiaWRwIjpudWxsfQ',
+      refresh_token: 'eyJraWQiOiJjcGltY29yZV8wOTI1MjAxNSIsInZlciI6IjEuMCIsInppcCI6IkRlZmxhdGUiLCJzZXIiOiIxLjAifQ..og5tc9dcMCi1x9Sz.T5seCETmDU0m548QJ2rLYW8wEarhlCIL8MkJMVpzUpkDVJ-2FxHcFQghqNMxSi4PwogUqST4jDkeGdiazZw0Y66epXzwhvdmcHafXwUsFWV9tCTUPfsCfLHBWOYpdsOyFIFndMO5IOwodWYQc6W5lcdUsKlI-GDJvXnNUgKUdqKuXWBQsX9kaDCOFS8ze9MRrBgYmTleBsiXLdfOkVlBz5Gi5Mob69oiXjqyAjXY-h9OJDT9yFYbQcGuOBoOQqY5vomjCVLcX6cWy4t_IMlkGbs8GMCG0-yrgvDdIqILZqpa4bIkNiGiDeHasCCDTs1TLJYBbhc7rBa6A3wLdyRrrrDlntKA0g2A0jVCzWcyPvCcen9R0hcGBchCyfUR0yCEu9oHXFSN8v1UW_7mfumX_b8rrQ853nVKyjNlf5SI3UwYApnsE5I7EKFc_yHkM6uHVEfrWBQQX4NLbm3854QPp3gRFzaqr6WYnQWRy5vqHFqCt0k7zh3qCq0gubZw3K7rVZK-VON8Kpd2KLBP1MszaXLNzAdVcNQUVni-FYbxiYrVDvzI9LgFRtRJMtHjQC_6Ln8bY2RHm98FEiy53FQ6yT25OMuTmq3t9YKedpf1hvyRe9NwkrVuRhMK0uI.4D663219YNoPSmqnLBK7Hw',
+      refresh_token_expires_in: 1209600,
+      claims: {
+        exp: 1521824965,
+        nbf: 1521821365,
+        ver: '1.0',
+        iss: 'https://login.microsoftonline.com/cb09675a-af21-4dde-9cf8-f63235a219a0/v2.0/',
+        sub: '6e87c6e5-9c09-47e0-a1cf-92a61d26125f',
+        aud: '4948935b-6137-4ee8-86a3-2d0a2e31442b',
+        iat: 1521821365,
+        auth_time: 1521821365,
+        oid: '6e87c6e5-9c09-47e0-a1cf-92a61d26125f',
+        given_name: 'Chris',
+        family_name: 'Cheshire',
+        emails: [
           'cheese@biscuits.com'
         ],
-        'tfp': 'B2C_1_b2c-webapp-signup-signin'
+        tfp: 'B2C_1_b2c-webapp-signup-signin'
       }
     }
 
@@ -383,7 +382,7 @@ lab.experiment('Defra.Identity HAPI plugin server methods', () => {
   lab.experiment('idm.refreshToken', async () => {
     let methods = {}
     let mock = {}
-    let passed = {
+    const passed = {
       getClient: {
         options: null
       },
