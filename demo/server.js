@@ -1,9 +1,9 @@
-const Hapi = require('hapi')
+const Hapi = require('@hapi/hapi')
 const path = require('path')
 const Blipp = require('blipp')
-const yar = require('yar')
-const inert = require('inert')
-const vision = require('vision')
+const yar = require('@hapi/yar')
+const inert = require('@hapi/inert')
+const vision = require('@hapi/vision')
 const ejs = require('ejs')
 const catboxMongo = require('catbox-mongodb')
 
@@ -12,10 +12,14 @@ const config = require('./config')
 const serverCache = config.mongoCache.enabled ? [
   {
     name: 'mongoCache',
-    engine: catboxMongo,
-    host: config.mongoCache.connectionString ? undefined : config.mongoCache.host,
-    uri: config.mongoCache.connectionString,
-    partition: 'idm-cache'
+    provider: {
+      constructor: catboxMongo,
+      options: {
+        partition: 'idm-cache',
+        host: config.mongoCache.connectionString ? undefined : config.mongoCache.host,
+        uri: config.mongoCache.connectionString
+      }
+    }
   }
 ] : undefined
 

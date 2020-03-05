@@ -1,6 +1,7 @@
-const Lab = require('lab')
-const Code = require('code')
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
 const md5 = require('md5')
+const { URLSearchParams } = require('url')
 const lab = exports.lab = Lab.script()
 
 const { describe, it } = lab
@@ -67,7 +68,7 @@ describe('Internals - routes', () => {
       })
     })
 
-    it(`should use the request object's cacheKey to set the token`, async () => {
+    it('should use the request object\'s cacheKey to set the token', async () => {
       let spyCacheSet, spyRequestSet
       const routeMethods = RouteMethods({
         cache: { set: (w, x, y, z) => { spyCacheSet = [w, x, y, z] } },
@@ -83,9 +84,9 @@ describe('Internals - routes', () => {
       expect(spyCacheSet).to.equal([
         'cache-key-cache-key',
         {
-          'claims': 'claims-claims-claims',
-          'tokenSet': {
-            'claims': 'claims-claims-claims'
+          claims: 'claims-claims-claims',
+          tokenSet: {
+            claims: 'claims-claims-claims'
           }
         },
         undefined,
@@ -121,7 +122,13 @@ describe('Internals - routes', () => {
 
       const output = await routeMethods.handleAuthorisationError(mock.request, mock.h, mock.savedState, mock.authorisationErr)
 
-      expect(output).to.equal(`${mock.config.appDomain}${mock.config.disallowedRedirectPath}?errorMessage=${encodeURIComponent(mock.authorisationErr.message)}&errorDescription=${encodeURIComponent(mock.authorisationErr.error_description)}&state=%22%7B%20state%3A%20testState%20%7D%22`)
+      const querystring = (new URLSearchParams({
+        errorMessage: mock.authorisationErr.message,
+        errorDescription: mock.authorisationErr.error_description,
+        state: mock.authorisationErr.state
+      })).toString()
+
+      expect(output).to.equal(`${mock.config.appDomain}${mock.config.disallowedRedirectPath}?${querystring}`)
     })
 
     it('should redirect to full qualified error redirect url with a key for "state" in the query but no value for it', async () => {
@@ -148,7 +155,13 @@ describe('Internals - routes', () => {
 
       const output = await routeMethods.handleAuthorisationError(mock.request, mock.h, mock.savedState, mock.authorisationErr)
 
-      expect(output).to.equal(`${mock.config.appDomain}${mock.config.disallowedRedirectPath}?errorMessage=${encodeURIComponent(mock.authorisationErr.message)}&errorDescription=${encodeURIComponent(mock.authorisationErr.error_description)}&state=`)
+      const querystring = (new URLSearchParams({
+        errorMessage: mock.authorisationErr.message,
+        errorDescription: mock.authorisationErr.error_description,
+        state: ''
+      }))
+
+      expect(output).to.equal(`${mock.config.appDomain}${mock.config.disallowedRedirectPath}?${querystring}`)
     })
   })
 
@@ -228,7 +241,7 @@ describe('Internals - routes', () => {
   })
 
   describe('fullyQualifiedLocalPath', async () => {
-    const mockAppDomain = 'https://app.domain'
+    const mockAppDomain = 'https://app.domain/'
 
     const { fullyQualifiedLocalPath } = RouteMethods({
       config: {
@@ -255,7 +268,7 @@ describe('Internals - routes', () => {
       const output = fullyQualifiedLocalPath(mock.path)
 
       expect(output).to.be.a.string()
-      expect(output).to.equal(`${mockAppDomain}/${mock.path}`)
+      expect(output).to.equal(`${mockAppDomain}${mock.path}`)
     })
 
     it('should return a fully qualified url including the passed path of a passed fully qualified url', async () => {
@@ -268,7 +281,7 @@ describe('Internals - routes', () => {
       const output = fullyQualifiedLocalPath(mock.pathWithDomain)
 
       expect(output).to.be.a.string()
-      expect(output).to.equal(`${mockAppDomain}/${mockPath}`)
+      expect(output).to.equal(`${mockAppDomain}${mockPath}`)
     })
   })
 })

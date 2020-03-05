@@ -26,3 +26,4 @@ Dockerfile
 docker-compose.yml
 start.sh
 .idea
+.eslintcache
