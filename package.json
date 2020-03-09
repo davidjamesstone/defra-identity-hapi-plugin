@@ -13,9 +13,9 @@
   },
   "main": "./lib/index.js",
   "scripts": {
-    "test": "PORT=8001 npx @hapi/lab -v --timeout 20000",
+    "test": "npx @hapi/lab -v",
     "lint": "eslint . --cache",
-    "test:lcov": "PORT=8001 npx @hapi/lab -vc -r lcov -o coverage.lcov",
+    "test:lcov": "npx @hapi/lab -vc -r lcov -o coverage.lcov",
     "test:analyse": "npm run test:lcov && gulp analyse"
   },
   "pre-commit": [
