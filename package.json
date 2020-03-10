@@ -1,6 +1,6 @@
 {
   "name": "@envage/defra-identity-hapi-plugin",
-  "version": "4.1.10",
+  "version": "5.0.0",
   "description": "A hapi auth plugin to allow easy integration with DEFRA's Identity Management system",
   "repository": {
     "type": "git",
@@ -15,10 +15,9 @@
   "scripts": {
     "demo": "DEBUG=defra.identity:* node demo",
     "postinstall": "cp -n demo/.env.template demo/.env || echo 'Note: Error creating demo/.env. File may already exist'",
-    "test": "PORT=8001 lab -vL --timeout 20000",
-    "lint": "PORT=8001 lab -dL",
-    "test:html": "PORT=8001 lab -vcL -r html -o coverage.html",
-    "test:lcov": "PORT=8001 lab -vcL -r lcov -o coverage.lcov",
+    "test": "PORT=8001 npx @hapi/lab -v --timeout 20000",
+    "lint": "eslint . --cache",
+    "test:lcov": "PORT=8001 npx @hapi/lab -vc -r lcov -o coverage.lcov",
     "test:analyse": "npm run test:lcov && gulp analyse"
   },
   "pre-commit": [
@@ -27,37 +26,38 @@
   "author": "Department for Environment, Food & Rural Affairs",
   "license": "See LICENSE.md",
   "engines": {
-    "node": "^8.12.0",
-    "npm": "^6.4.1"
+    "node": "~12.16.0",
+    "npm": "~6.12.1"
   },
   "dependencies": {
+    "@hapi/cookie": "^11.0.0",
+    "@hapi/hoek": "^9.0.3",
+    "@hapi/joi": "^15.1.1",
     "adal-node": "^0.1.28",
     "await-to-js": "^2.0.1",
     "debug": "^3.1.0",
-    "hapi-auth-cookie": "^8.1.0",
-    "joi": "^13.4.0",
     "lodash": "^4.17.15",
     "md5": "^2.2.1",
     "openid-client": "^2.4.5",
     "request": "^2.88.0",
-    "uuid": "^3.2.1",
-    "yar": "^9.1.0"
+    "uuid": "^3.2.1"
   },
   "devDependencies": {
+    "@hapi/code": "^8.0.1",
+    "@hapi/hapi": "^19.1.1",
+    "@hapi/inert": "^6.0.1",
+    "@hapi/lab": "^22.0.3",
+    "@hapi/vision": "^6.0.0",
+    "@hapi/yar": "^10.0.0",
     "blipp": "^3.0.0",
-    "catbox-mongodb": "^4.2.0",
-    "code": "^5.2.0",
+    "catbox-mongodb": "^4.2.1",
     "dotenv": "^5.0.1",
     "ejs": "^2.5.7",
     "gulp": "^4.0.0",
     "gulp-cli": "^2.0.1",
-    "hapi": "^17.3.1",
-    "inert": "^5.1.0",
-    "lab": "^17.2.1",
     "pre-commit": "^1.2.2",
     "snazzy": "^7.1.1",
     "sonarqube-scanner": "^2.5.0",
-    "standard": "^11.0.1",
-    "vision": "^5.3.1"
+    "standard": "^14.3.1"
   }
 }

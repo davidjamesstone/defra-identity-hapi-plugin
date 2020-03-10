@@ -2,8 +2,8 @@ const path = require('path')
 
 require('dotenv').config({ path: path.join(__dirname, '..', '..', 'demo', '.env') })
 
-const Lab = require('lab')
-const Code = require('code')
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
 const lab = exports.lab = Lab.script()
 
 const { describe, it } = lab
@@ -45,21 +45,21 @@ describe('Dynamics', () => {
     const completeApprovedStatus = enrolmentStatus.completeApproved
 
     const jwtClaims = {
-      'exp': 1537200994,
-      'nbf': 1537197394,
-      'ver': '1.0',
-      'iss': 'https://login.microsoftonline.com/xxx/v2.0/',
-      'sub': 'xxx',
-      'aud': 'xxx',
-      'acr': 'b2c_1a_scp_signup_signin_roles_dynx',
-      'iat': 1537197394,
-      'auth_time': 1537197394,
-      'email': 'email@email.com',
-      'roles': [
+      exp: 1537200994,
+      nbf: 1537197394,
+      ver: '1.0',
+      iss: 'https://login.microsoftonline.com/xxx/v2.0/',
+      sub: 'xxx',
+      aud: 'xxx',
+      acr: 'b2c_1a_scp_signup_signin_roles_dynx',
+      iat: 1537197394,
+      auth_time: 1537197394,
+      email: 'email@email.com',
+      roles: [
         `${orgId}:${managerRoleId}:${pendingStatus}`,
         `${orgId}:${userRoleId}:${completeApprovedStatus}`
       ],
-      'roleMappings': [
+      roleMappings: [
         `${orgId}:${orgName}`,
         `${managerRoleId}:LE Manager`,
         `${pendingStatus}:Pending`,
@@ -71,108 +71,108 @@ describe('Dynamics', () => {
     const parsedResponse = idm.dynamics.parseAuthzRoles(jwtClaims)
 
     const expectedParsedResponse = {
-      'rolesByOrg': {
+      rolesByOrg: {
         [orgId]: {
-          'organisation': {
-            'id': orgId,
-            'name': orgName
+          organisation: {
+            id: orgId,
+            name: orgName
           },
-          'roles': {
+          roles: {
             [managerRoleId]: {
-              'id': managerRoleId,
-              'name': 'LE Manager',
-              'status': {
-                'id': pendingStatus,
-                'name': 'Pending'
+              id: managerRoleId,
+              name: 'LE Manager',
+              status: {
+                id: pendingStatus,
+                name: 'Pending'
               }
             },
             [userRoleId]: {
-              'id': userRoleId,
-              'name': 'LE User',
-              'status': {
-                'id': completeApprovedStatus,
-                'name': 'Complete (Approved)'
+              id: userRoleId,
+              name: 'LE User',
+              status: {
+                id: completeApprovedStatus,
+                name: 'Complete (Approved)'
               }
             }
           }
         }
       },
-      'rolesByStatus': {
-        '2': {
+      rolesByStatus: {
+        2: {
           [orgId]: {
-            'organisation': {
-              'id': orgId,
-              'name': orgName
+            organisation: {
+              id: orgId,
+              name: orgName
             },
-            'roles': {
+            roles: {
               [managerRoleId]: {
-                'id': managerRoleId,
-                'name': 'LE Manager',
-                'status': {
-                  'id': pendingStatus,
-                  'name': 'Pending'
+                id: managerRoleId,
+                name: 'LE Manager',
+                status: {
+                  id: pendingStatus,
+                  name: 'Pending'
                 }
               }
             }
           }
         },
-        '3': {
+        3: {
           [orgId]: {
-            'organisation': {
-              'id': orgId,
-              'name': orgName
+            organisation: {
+              id: orgId,
+              name: orgName
             },
-            'roles': {
+            roles: {
               [userRoleId]: {
-                'id': userRoleId,
-                'name': 'LE User',
-                'status': {
-                  'id': completeApprovedStatus,
-                  'name': 'Complete (Approved)'
+                id: userRoleId,
+                name: 'LE User',
+                status: {
+                  id: completeApprovedStatus,
+                  name: 'Complete (Approved)'
                 }
               }
             }
           }
         }
       },
-      'rolesByRole': {
+      rolesByRole: {
         [managerRoleId]: {
           [orgId]: {
-            'id': managerRoleId,
-            'name': 'LE Manager',
-            'status': {
-              'id': pendingStatus,
-              'name': 'Pending'
+            id: managerRoleId,
+            name: 'LE Manager',
+            status: {
+              id: pendingStatus,
+              name: 'Pending'
             }
           }
         },
         [userRoleId]: {
           [orgId]: {
-            'id': userRoleId,
-            'name': 'LE User',
-            'status': {
-              'id': completeApprovedStatus,
-              'name': 'Complete (Approved)'
+            id: userRoleId,
+            name: 'LE User',
+            status: {
+              id: completeApprovedStatus,
+              name: 'Complete (Approved)'
             }
           }
         }
       },
-      'flat': [
+      flat: [
         {
-          'roleId': managerRoleId,
-          'roleName': 'LE Manager',
-          'orgId': orgId,
-          'orgName': orgName,
-          'orgRoleStatusIdNumber': pendingStatus,
-          'orgRoleStatusName': 'Pending'
+          roleId: managerRoleId,
+          roleName: 'LE Manager',
+          orgId: orgId,
+          orgName: orgName,
+          orgRoleStatusIdNumber: pendingStatus,
+          orgRoleStatusName: 'Pending'
         },
         {
-          'roleId': userRoleId,
-          'roleName': 'LE User',
-          'orgId': orgId,
-          'orgName': orgName,
-          'orgRoleStatusIdNumber': completeApprovedStatus,
-          'orgRoleStatusName': 'Complete (Approved)'
+          roleId: userRoleId,
+          roleName: 'LE User',
+          orgId: orgId,
+          orgName: orgName,
+          orgRoleStatusIdNumber: completeApprovedStatus,
+          orgRoleStatusName: 'Complete (Approved)'
         }
       ]
     }
